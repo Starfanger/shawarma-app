@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ШАУРМА PREMIER</title>
+    <title>ДОСТАВКА ПРЕМЬЕР</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -31,27 +31,18 @@
 
         .container { padding: 0 15px 140px; max-width: 600px; margin: 0 auto; }
 
-        .tabs { 
-            display: flex; gap: 8px; overflow-x: auto; padding: 15px 0; 
-            scrollbar-width: none; -ms-overflow-style: none;
-        }
+        .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 15px 0; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
         
         .tab {
             padding: 10px 16px; background: var(--card); border-radius: 12px;
             font-size: 12px; font-weight: 700; white-space: nowrap;
-            border: 1px solid var(--glass-border); transition: 0.2s;
-            cursor: pointer;
+            border: 1px solid var(--glass-border); transition: 0.2s; cursor: pointer;
         }
         .tab.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
         #catalog { display: grid; gap: 10px; }
-        .item-card {
-            background: var(--card); border-radius: 18px; padding: 16px;
-            border: 1px solid var(--glass-border); transition: 0.2s;
-            cursor: pointer;
-        }
-        .item-card:active { transform: scale(0.97); border-color: var(--accent); }
+        .item-card { background: var(--card); border-radius: 18px; padding: 16px; border: 1px solid var(--glass-border); }
         .item-card h3 { margin: 0 0 4px; font-size: 16px; color: var(--accent); }
         .item-card p { font-size: 12px; color: #888; margin: 0 0 12px; line-height: 1.3; }
 
@@ -59,41 +50,53 @@
         .price { font-weight: 800; font-size: 15px; }
         .add-btn { background: var(--primary); color: #000; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 11px; }
 
-        /* Модалки */
+        /* Оверлеи */
         .overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-            z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
+            display: flex; align-items: flex-end; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
+        
+        #modalOverlay { z-index: 2000; } 
+        #cartOverlay { z-index: 1500; }
         .overlay.active { opacity: 1; pointer-events: auto; }
+        
         .modal {
             background: #0a0a0c; width: 100%; max-width: 500px; border-radius: 24px 24px 0 0;
-            padding: 25px 20px; transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 25px 20px 30px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .overlay.active .modal { transform: translateY(0); }
 
+        .extras-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            max-height: 40vh; overflow-y: auto; padding-right: 5px;
+        }
+
         .extra-row {
-            display: flex; justify-content: space-between; padding: 14px;
-            background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px;
-            border: 1px solid transparent; cursor: pointer; font-size: 14px;
+            display: flex; flex-direction: column; justify-content: center; padding: 10px;
+            background: rgba(255,255,255,0.03); border-radius: 12px;
+            border: 1px solid transparent; cursor: pointer; transition: 0.2s;
         }
         .extra-row.selected { border-color: var(--accent); background: rgba(0,255,163,0.1); }
+        .extra-row span:first-child { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+        .extra-row span:last-child { font-size: 11px; color: var(--accent); font-weight: 800; }
 
         .cart-bar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: calc(100% - 40px); max-width: 500px;
             background: var(--accent); color: #000; border-radius: 18px;
             padding: 18px 22px; display: none; justify-content: space-between;
-            align-items: center; font-weight: 900; z-index: 900; cursor: pointer;
+            align-items: center; font-weight: 900; z-index: 900;
         }
 
         .cart-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px; background: rgba(255,255,255,0.02);
-            border-radius: 14px; margin-bottom: 8px;
+            border-radius: 14px; margin-bottom: 8px; border: 1px solid var(--glass-border);
         }
-        .q-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; }
+        .q-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -110,28 +113,28 @@
     <div id="catalog"></div>
 </div>
 
-<div id="modalOverlay" class="overlay" onclick="closeAll()">
+<div id="modalOverlay" class="overlay" onclick="closeConstructor()">
     <div class="modal" onclick="event.stopPropagation()">
         <h2 id="mName" style="margin:0; font-size: 20px;"></h2>
-        <p id="mDesc" style="color:#666; font-size:13px; margin:8px 0 20px"></p>
-        <div id="mExtras"></div>
-        <div id="mTotal" style="text-align:center; font-size:22px; font-weight:900; margin:20px 0"></div>
+        <p id="mDesc" style="color:#666; font-size:13px; margin:8px 0 15px"></p>
+        <div id="mExtras" class="extras-grid"></div>
+        <div id="mTotal" style="text-align:center; font-size:22px; font-weight:900; margin:15px 0"></div>
         <button onclick="addToCart()" style="width:100%; padding:18px; border-radius:15px; border:none; background:var(--accent); color:#000; font-weight:900; font-size:15px;">
             ПОДТВЕРДИТЬ
         </button>
     </div>
 </div>
 
-<div id="cartOverlay" class="overlay" onclick="closeAll()">
+<div id="cartOverlay" class="overlay" onclick="closeCart()">
     <div class="modal" onclick="event.stopPropagation()">
         <h2 style="margin-bottom:15px; font-size: 18px;">Корзина</h2>
-        <div id="cartList" style="max-height:40vh; overflow-y:auto"></div>
+        <div id="cartList" style="max-height:45vh; overflow-y:auto"></div>
         <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px">
             <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:900; margin-bottom:15px">
                 <span>ИТОГО:</span> <span id="cartFullPrice">0</span>
             </div>
             <button onclick="sendOrder()" style="width:100%; padding:18px; border-radius:15px; border:none; background:#fff; color:#000; font-weight:900; font-size:15px;">
-                ЗАКАЗАТЬ
+                ОТПРАВИТЬ ЗАКАЗ
             </button>
         </div>
     </div>
@@ -191,7 +194,7 @@
         { id: 49, cat: 'burgers', name: '🥚 Яичный Рофл', price: 11.0, desc: 'С глазуньей.' },
         { id: 50, cat: 'burgers', name: '🦾 Железный Денис', price: 17.5, desc: 'Мощный.' },
 
-        // СЕТЫ (20)
+        // СЕТЫ (10)
         { id: 101, cat: 'sets', name: '🕺 Сет Сприподвыподвертом', price: 45.0, desc: '20 роллов.' },
         { id: 102, cat: 'sets', name: '💨 Сет Движение', price: 38.0, desc: 'Быстрый вкус.' },
         { id: 103, cat: 'sets', name: '⛪️ Поднизовский Свиток', price: 12.0, desc: 'Освященный.' },
@@ -200,24 +203,27 @@
         { id: 106, cat: 'sets', name: '🏃‍♂️ Оп-Оп Экспресс', price: 22.0, desc: 'Для спешащих.' },
         { id: 107, cat: 'sets', name: '📦 Посылка от Бати', price: 55.0, desc: '80 штук.' },
         { id: 108, cat: 'sets', name: '🍤 Креветочный Угар', price: 32.0, desc: 'Много креветок.' },
-        { id: 109, cat: 'sets', name: '🥒 Огуречный Кураж', price: 15.0, desc: 'Веган.' },
-        { id: 110, cat: 'sets', name: '🍣 Император Хайпа', price: 50.0, desc: 'С золотом.' },
         { id: 111, cat: 'sets', name: '🌶 Острый Замес', price: 28.0, desc: 'Шрирача.' },
-        { id: 112, cat: 'sets', name: '🥓 Бекон-Ролл Сет', price: 35.0, desc: 'Симонов ок.' },
-        { id: 113, cat: 'sets', name: '🍎 Яблочный Рофл', price: 18.0, desc: 'Сладкие.' },
-        { id: 114, cat: 'sets', name: '🌋 Вулкан Валакаса', price: 40.0, desc: 'Запеченные.' },
-        { id: 115, cat: 'sets', name: '🐟 Рыбный День', price: 29.0, desc: 'Много рыбы.' },
-        { id: 116, cat: 'sets', name: '🍗 Куриный Оп-Оп', price: 24.0, desc: 'С курицей.' },
-        { id: 117, cat: 'sets', name: '🧀 Сырный Загул', price: 31.0, desc: 'Много сыра.' },
-        { id: 118, cat: 'sets', name: '🌈 Радужный Хайп', price: 27.0, desc: 'Цветной рис.' },
-        { id: 119, cat: 'sets', name: '🌑 Ночной Дожор', price: 33.0, desc: 'После 00:00.' },
-        { id: 120, cat: 'sets', name: '👴 Дедов Архив', price: 60.0, desc: 'Старый рецепт.' }
+        { id: 114, cat: 'sets', name: '🌋 Вулкан Валакаса', price: 40.0, desc: 'Запеченные.' }
     ];
 
+    // КЛАССИЧЕСКИЕ ДОПЫ (КАК В ДОДО)
     const extras = [
-        { name: '🧀 Жир Жмышенко', price: 1.5 },
-        { name: '🌶 Слёзы Линейной', price: 1.0 },
-        { name: '🥩 Лишняя Хромосома', price: 3.5 }
+        { name: '🧀 Сыр чеддер', price: 1.5 },
+        { name: '🥓 Жареный бекон', price: 2.0 },
+        { name: '🥒 Острые халапеньо', price: 1.0 },
+        { name: '🍄 Сочные грибы', price: 1.5 },
+        { name: '🧅 Красный лук', price: 0.5 },
+        { name: '🌶 Соус Шрирача', price: 1.0 },
+        { name: '🍯 Горчичный соус', price: 1.0 },
+        { name: '🍖 Двойное мясо', price: 4.0 },
+        { name: '🥔 Картофель фри', price: 2.5 },
+        { name: '🥗 Маринованный огурчик', price: 0.8 },
+        { name: '🥓 Пепперони', price: 2.0 },
+        { name: '🧀 Сырная моцарелла', price: 1.8 },
+        { name: '🧄 Чесночный соус', price: 0.7 },
+        { name: '🍍 Ананасы', price: 1.5 },
+        { name: '🍳 Яйцо поджаренное', price: 1.2 }
     ];
 
     let cart = [];
@@ -245,6 +251,8 @@
     }
 
     function openItem(id, cartCid = null) {
+        if (cartCid) document.getElementById('cartOverlay').classList.remove('active');
+
         editingCid = cartCid;
         const source = cartCid ? cart.find(x => x.cid === cartCid) : null;
         tempItem = menu.find(m => m.id === id);
@@ -265,7 +273,7 @@
         extras.forEach(ex => {
             const div = document.createElement('div');
             div.className = `extra-row ${tempExtras.has(ex) ? 'selected' : ''}`;
-            div.innerHTML = `<span>${ex.name}</span> <span>+${ex.price}</span>`;
+            div.innerHTML = `<span>${ex.name}</span> <span>+${ex.price.toFixed(2)}</span>`;
             div.onclick = () => {
                 div.classList.toggle('selected');
                 tempExtras.has(ex) ? tempExtras.delete(ex) : tempExtras.add(ex);
@@ -291,6 +299,7 @@
             const i = cart.find(x => x.cid === editingCid);
             i.total = p;
             i.details = Array.from(tempExtras).map(e => e.name);
+            openCart();
         } else {
             cart.push({
                 cid: Date.now(),
@@ -302,7 +311,7 @@
             });
         }
         
-        closeAll();
+        closeConstructor();
         updateBar();
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
     }
@@ -327,7 +336,7 @@
             div.innerHTML = `
                 <div style="flex:1">
                     <div style="font-weight:900; font-size:14px">${item.name}</div>
-                    <div style="font-size:10px; color:#666">${item.details.join(', ') || 'Без допов'}</div>
+                    <div style="font-size:10px; color:#666">${item.details.join(', ') || 'Классический состав'}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px" onclick="event.stopPropagation()">
                     <button class="q-btn" onclick="editQty(${item.cid}, -1)">-</button>
@@ -347,13 +356,16 @@
         if(i) {
             i.qty = Math.max(0, i.qty + delta);
             if(i.qty === 0) cart = cart.filter(x => x.cid !== cid);
-            if(cart.length === 0) closeAll(); else openCart();
+            if(cart.length === 0) closeCart(); else openCart();
             updateBar();
         }
     }
 
-    function closeAll() {
+    function closeConstructor() {
         document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    function closeCart() {
         document.getElementById('cartOverlay').classList.remove('active');
     }
 
