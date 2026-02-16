@@ -6,26 +6,23 @@
     <title>Doner Duck</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --orange: #ff5e00; --light-bg: #fff8f0; }
-        body { font-family: sans-serif; margin: 0; padding: 15px; background: #fff; color: #333; }
-        .header { text-align: center; color: var(--orange); margin-bottom: 20px; }
-        .section-title { font-size: 18px; font-weight: bold; margin: 15px 0 10px; }
+        :root { --orange: #ff5e00; }
+        body { font-family: -apple-system, sans-serif; padding: 20px; background: #fff; color: #333; margin: 0; }
+        .header { text-align: center; color: var(--orange); margin-bottom: 25px; }
+        .section-title { font-weight: bold; margin: 20px 0 10px; font-size: 1.1em; }
         
-        .card { border: 2px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
-        .card.active { border-color: var(--orange); background: var(--light-bg); }
+        .card-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .card { flex: 1; border: 2px solid #eee; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .card.active { border-color: var(--orange); background: #fff8f0; }
         
-        .row { display: flex; gap: 10px; }
-        .row > .card { flex: 1; text-align: center; }
-        
-        .ingredient { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
-        .ingredient input { width: 20px; height: 20px; accent-color: var(--orange); }
+        .ingredient { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f5f5f5; }
+        .ingredient input { width: 22px; height: 22px; accent-color: var(--orange); }
 
         .footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 15px; background: #fff; border-top: 1px solid #eee; }
-        .order-btn { width: 100%; background: var(--orange); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .order-btn { width: 100%; background: var(--orange); color: white; border: none; padding: 18px; border-radius: 15px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
         .order-btn:disabled { background: #ccc; }
         
-        input[type="number"] { width: 50px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; }
-        padding-bottom { height: 100px; }
+        #qty { width: 60px; padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-size: 1em; }
     </style>
 </head>
 <body>
@@ -33,99 +30,94 @@
     <div class="header"><h1>🦆 DONER DUCK</h1></div>
 
     <div class="section-title">Тип шаурмы</div>
-    <div class="row" id="typeContainer">
-        <div class="card active" data-type="chicken">Куриная<br><small>5.00 Br</small></div>
-        <div class="card" data-type="beef">Мясная<br><small>6.00 Br</small></div>
+    <div class="card-row" id="typeGroup">
+        <div class="card active" data-type="chicken" data-price="5.00">Куриная<br>5.00 Br</div>
+        <div class="card" data-type="beef" data-price="6.00">Мясная<br>6.00 Br</div>
     </div>
 
     <div class="section-title">Размер</div>
-    <div class="row" id="sizeContainer">
+    <div class="card-row" id="sizeGroup">
         <div class="card active" data-size="standard" data-add="0">Стандарт</div>
         <div class="card" data-size="large" data-add="2.5">Большая (+2.50)</div>
     </div>
 
     <div class="section-title">Добавки</div>
-    <div id="ingredientsContainer">
-        <label class="ingredient"><span>Доп. мясо (+1.50)</span> <input type="checkbox" value="meat" data-price="1.50"></label>
-        <label class="ingredient"><span>Сыр (+0.80)</span> <input type="checkbox" value="cheese" data-price="0.80"></label>
-        <label class="ingredient"><span>Острый соус (+0.30)</span> <input type="checkbox" value="spicy" data-price="0.30"></label>
+    <div id="extras">
+        <label class="ingredient"><span>Доп. мясо (+1.50)</span> <input type="checkbox" data-name="Доп. мясо" data-price="1.50"></label>
+        <label class="ingredient"><span>Сыр (+0.80)</span> <input type="checkbox" data-name="Сыр" data-price="0.80"></label>
+        <label class="ingredient"><span>Острый соус (+0.30)</span> <input type="checkbox" data-name="Острый соус" data-price="0.30"></label>
     </div>
 
     <div class="section-title">Количество: <input type="number" id="qty" value="1" min="1"></div>
 
-    <div style="height: 100px;"></div>
+    <div style="height: 120px;"></div>
 
     <div class="footer">
-        <button id="mainBtn" class="order-btn">Оформить заказ (<span id="totalPrice">5.00</span> Br)</button>
+        <button id="orderBtn" class="order-btn">Заказать за <span id="totalPrice">5.00</span> Br</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
-        let state = {
+        let order = {
             type: 'chicken',
             size: 'standard',
-            quantity: 1,
-            basePrice: 5.00
+            quantity: 1
         };
 
-        function calculate() {
-            let total = state.basePrice;
-            // Доплата за размер
-            if (state.size === 'large') total += 2.50;
-            if (state.type === 'beef') total += 1.00;
+        function updatePrice() {
+            let base = order.type === 'chicken' ? 5.00 : 6.00;
+            let sizeAdd = order.size === 'large' ? 2.50 : 0;
+            let extras = 0;
             
-            // Добавки
-            document.querySelectorAll('#ingredientsContainer input:checked').forEach(el => {
-                total += parseFloat(el.dataset.price);
+            document.querySelectorAll('#extras input:checked').forEach(i => {
+                extras += parseFloat(i.dataset.price);
             });
 
-            total *= state.quantity;
-            document.getElementById('totalPrice').innerText = total.toFixed(2);
-            return total;
+            const final = (base + sizeAdd + extras) * order.quantity;
+            document.getElementById('totalPrice').innerText = final.toFixed(2);
+            return final;
         }
 
-        // Переключение карточек
-        document.querySelectorAll('.card').forEach(card => {
-            card.onclick = () => {
-                const parent = card.parentElement;
-                parent.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
+        // Логика выбора во всех карточках
+        document.querySelectorAll('.card').forEach(el => {
+            el.onclick = () => {
+                el.parentElement.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
                 
-                if (card.dataset.type) state.type = card.dataset.type;
-                if (card.dataset.size) state.size = card.dataset.size;
-                calculate();
+                if (el.dataset.type) order.type = el.dataset.type;
+                if (el.dataset.size) order.size = el.dataset.size;
+                updatePrice();
             };
         });
 
         document.getElementById('qty').oninput = (e) => {
-            state.quantity = parseInt(e.target.value) || 1;
-            calculate();
+            order.quantity = Math.max(1, parseInt(e.target.value) || 1);
+            updatePrice();
         };
 
-        document.querySelectorAll('input[type="checkbox"]').forEach(ch => {
-            ch.onchange = calculate;
-        });
+        document.querySelectorAll('input[type="checkbox"]').forEach(c => c.onchange = updatePrice);
 
-        // ОТПРАВКА ДАННЫХ
-        document.getElementById('mainBtn').onclick = () => {
-            const finalPrice = calculate();
+        // ОТПРАВКА
+        document.getElementById('orderBtn').onclick = function() {
             const ingredients = [];
-            document.querySelectorAll('#ingredientsContainer input:checked').forEach(el => {
-                ingredients.push({ name: el.parentElement.innerText.split('(')[0].trim() });
+            document.querySelectorAll('#extras input:checked').forEach(i => {
+                ingredients.push({ name: i.dataset.name });
             });
 
             const data = {
-                type: state.type,
-                size: state.size,
-                quantity: state.quantity,
+                type: order.type,
+                size: order.size,
+                quantity: order.quantity,
                 ingredients: ingredients,
-                total: finalPrice,
+                total: updatePrice(),
                 currency: 'BYN'
             };
 
-            tg.sendData(JSON.stringify(data)); // Это отправит данные боту
+            console.log("Sending data:", data);
+            tg.sendData(JSON.stringify(data));
         };
     </script>
 </body>
