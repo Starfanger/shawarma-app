@@ -3,158 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Шаурма v3.0</title>
+    <title>Шаурма</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.7);
-            --primary: #00ff88;
-            --text: #f8fafc;
-            --accent: #ff0055;
-            --glass: rgba(255, 255, 255, 0.1);
+            --bg: #050505;
+            --card: #121212;
+            --primary: #ffffff;
+            --secondary: #222222;
+            --accent: #ffdd00;
+            --text: #ffffff;
+            --text-muted: #888888;
         }
 
         body.light {
-            --bg: #f1f5f9;
-            --card: rgba(255, 255, 255, 0.8);
-            --text: #0f172a;
-            --glass: rgba(0, 0, 0, 0.05);
+            --bg: #f8f8f8;
+            --card: #ffffff;
+            --primary: #000000;
+            --secondary: #f0f0f0;
+            --text: #000000;
+            --text-muted: #666666;
         }
 
         body {
-            /* Добавляем Noto Color Emoji — именно его модифицировал твой скрипт */
+            /* Принудительно ищем Noto Color Emoji, который заменил твой скрипт */
             font-family: 'Inter', -apple-system, "Noto Color Emoji", "Apple Color Emoji", sans-serif;
-            background: var(--bg);
+            background-color: var(--bg);
             color: var(--text);
-            margin: 0; 
-            padding: 0; 
-            transition: 0.3s;
-            overflow-x: hidden;
+            margin: 0; padding: 0;
+            transition: background 0.3s;
+            -webkit-tap-highlight-color: transparent;
         }
 
         header {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
+            padding: 24px 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .theme-toggle { font-size: 24px; cursor: pointer; }
+        h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin: 0; text-transform: uppercase; }
 
-        .container { padding: 0 16px 120px; }
+        .container { padding: 0 20px 140px; }
 
-        /* Категории */
-        .tabs { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        /* Категории (Minimal Pill Style) */
+        .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
         .tab {
-            padding: 10px 20px; background: var(--glass); border-radius: 20px;
-            white-space: nowrap; font-size: 14px; border: 1px solid transparent;
+            padding: 8px 16px; background: var(--secondary); border-radius: 12px;
+            font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--text-muted);
+            transition: 0.2s;
         }
-        .tab.active { border-color: var(--primary); background: rgba(0, 255, 136, 0.1); color: var(--primary); font-weight: bold; }
+        .tab.active { background: var(--primary); color: var(--bg); }
 
-        /* Карточки */
+        /* Карточки товаров */
         .item-card {
-            background: var(--card); backdrop-filter: blur(15px); border-radius: 24px;
-            padding: 20px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.3s;
+            background: var(--card); border-radius: 20px; padding: 20px;
+            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.1s ease;
         }
-        .item-card:active { transform: scale(0.97); }
-        .item-card h3 { margin: 0 0 8px; font-size: 20px; display: flex; align-items: center; gap: 8px; }
-        .item-card p { font-size: 13px; opacity: 0.7; margin: 0; }
-        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        .price { font-size: 18px; font-weight: 900; color: var(--primary); }
+        .item-card:active { transform: scale(0.98); }
+        .item-card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
+        .item-card p { font-size: 14px; color: var(--text-muted); margin: 0 0 16px; line-height: 1.4; }
+        
+        .price-row { display: flex; justify-content: space-between; align-items: center; }
+        .price { font-size: 17px; font-weight: 700; }
+        .add-btn {
+            background: var(--primary); color: var(--bg); border: none;
+            padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 13px;
+        }
 
-        /* Модалка */
+        /* Модальное окно (Apple Sheet Style) */
         #modalOverlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
             display: none; justify-content: center; align-items: flex-end; z-index: 1000;
         }
         .modal {
-            background: var(--bg); width: 100%; max-height: 85vh; border-radius: 30px 30px 0 0;
-            padding: 30px 20px; overflow-y: auto; position: relative;
+            background: var(--card); width: 100%; border-radius: 24px 24px 0 0;
+            padding: 30px 20px 40px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
-        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 24px; opacity: 0.5; }
 
-        .extra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .extra-btn {
-            background: var(--glass); padding: 12px; border-radius: 15px; text-align: center;
-            font-size: 12px; border: 1px solid transparent; transition: 0.2s;
+        .extra-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .extra-btn.active { border-color: var(--primary); background: rgba(0, 255, 136, 0.1); }
+        .extra-item:last-child { border: none; }
+        
+        .checkbox {
+            width: 24px; height: 24px; border: 2px solid var(--text-muted);
+            border-radius: 6px; position: relative; transition: 0.2s;
+        }
+        .extra-item.active .checkbox { background: var(--accent); border-color: var(--accent); }
 
-        .qty-control { display: flex; align-items: center; justify-content: center; gap: 25px; margin: 25px 0; }
-        .qty-btn { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); background: none; color: var(--primary); font-size: 24px; }
+        /* Счетчик */
+        .qty-box {
+            display: flex; align-items: center; justify-content: center;
+            gap: 30px; margin: 30px 0; background: var(--secondary);
+            padding: 12px; border-radius: 16px;
+        }
+        .qty-btn { font-size: 24px; background: none; border: none; color: var(--text); padding: 0 10px; }
 
-        /* Корзина */
+        /* Кнопка заказа */
         .footer-cart {
-            position: fixed; bottom: 20px; left: 16px; right: 16px;
-            background: linear-gradient(135deg, var(--primary), #00bdff);
-            border-radius: 20px; padding: 20px; color: #000; display: none;
-            justify-content: space-between; align-items: center; font-weight: 900;
-            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.4); z-index: 500;
+            position: fixed; bottom: 30px; left: 20px; right: 20px;
+            background: var(--primary); color: var(--bg);
+            border-radius: 18px; padding: 18px 24px;
+            display: none; justify-content: space-between; align-items: center;
+            font-weight: 800; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            z-index: 900;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>🌯 ШАУРМА v3.0</h1>
-    <div class="theme-toggle" id="themeBtn">🌓</div>
+    <h1>ШАУРМА</h1>
+    <div onclick="document.body.classList.toggle('light')" style="font-size: 20px; opacity: 0.5;">🌓</div>
 </header>
 
 <div class="container">
     <div class="tabs">
-        <div class="tab active" onclick="filter('all')">Всё меню 🔥</div>
-        <div class="tab" onclick="filter('elderly')">👵 Пожилым</div>
-        <div class="tab" onclick="filter('disco')">🕺 Танцы</div>
-        <div class="tab" onclick="filter('legend')">🏆 Легенды</div>
+        <div class="tab active" onclick="filter('all', this)">Все</div>
+        <div class="tab" onclick="filter('classic', this)">Классика</div>
+        <div class="tab" onclick="filter('special', this)">Особое</div>
     </div>
     <div id="catalog"></div>
 </div>
 
 <div id="modalOverlay">
     <div class="modal">
-        <div class="modal-close" onclick="closeModal()">✕</div>
-        <h2 id="mName">Название</h2>
-        <p id="mDesc" style="opacity: 0.6; font-size: 14px;">Описание</p>
-        
-        <div class="section-label" style="margin-top:20px; font-weight: bold;">ДОБАВИТЬ РОФЛОВ:</div>
-        <div class="extra-grid" id="mExtras"></div>
-
-        <div class="qty-control">
-            <button class="qty-btn" onclick="changeQty(-1)">-</button>
-            <span id="mQty" style="font-size: 24px; font-weight: 900;">1</span>
+        <h2 id="mName" style="margin-top:0">Название</h2>
+        <div id="mExtras"></div>
+        <div class="qty-box">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <span id="mQty" style="font-size: 20px; font-weight: 800;">1</span>
             <button class="qty-btn" onclick="changeQty(1)">+</button>
         </div>
-
-        <button onclick="confirmItem()" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: #000; font-weight: 900; font-size: 16px;">
-            ДОБАВИТЬ В КОРЗИНУ — <span id="mTotal">0</span> BYN
+        <button onclick="confirmItem()" style="width: 100%; padding: 18px; border-radius: 16px; border: none; background: var(--primary); color: var(--bg); font-weight: 800; font-size: 16px;">
+            Добавить за <span id="mTotal">0</span> BYN
         </button>
     </div>
 </div>
 
 <div class="footer-cart" id="cartBar" onclick="sendOrder()">
-    <span>🛒 В КОРЗИНЕ: <span id="cCount">0</span></span>
-    <span>ОФОРМИТЬ: <span id="cPrice">0</span> BYN</span>
+    <span>КОРЗИНА (<span id="cCount">0</span>)</span>
+    <span><span id="cPrice">0</span> BYN</span>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.ready();
     tg.expand();
 
     const menu = [
-        { id: 1, cat: 'elderly', icon: '👴', name: 'Да-да-я', price: 7.0, desc: 'Пожилой кролик одобряет. Вкус 54-х лет.' },
-        { id: 2, cat: 'elderly', icon: '🧪', name: 'Жмышенко Валерий', price: 9.5, desc: 'Двойная порция рофла. Осторожно, вызывает привыкание.' },
-        { id: 3, cat: 'disco', icon: '💃', name: 'Звезда Дискотек', price: 11.0, desc: 'Игорь Вихорьков рекомендует. Чесночный соус для дистанции.' },
-        { id: 4, cat: 'disco', icon: '💨', name: 'Я пукаю', price: 8.0, desc: 'Взрывная смесь фасоли и перца. Только для смелых.' },
-        { id: 5, cat: 'legend', icon: '🌌', name: 'Идущий к реке', price: 15.0, desc: 'Бесконечно длинный ролл. Для тех, кто всё познал.' },
-        { id: 6, cat: 'legend', icon: '👔', name: 'АДВОКАТ!', price: 9.0, desc: 'Выиграет любое дело в твоем желудке.' }
+        { id: 1, cat: 'classic', name: '🌯 Классика Жопы', price: 7.5, desc: 'Та самая, с которой всё началось. Соус по секретному рецепту.' },
+        { id: 2, cat: 'special', name: '🔥 Жгучий Дед', price: 9.0, desc: 'Острая, как шутки за 300. Пробивает насквозь.' },
+        { id: 3, cat: 'classic', name: '🧀 Сырный Куш', price: 10.5, desc: 'Четыре сыра и одна шаурма. Тянется до соседнего района.' },
+        { id: 4, cat: 'special', name: '🏆 Легенда 54', price: 12.0, desc: 'Элитный сверток для тех, кто познал жизнь.' }
     ];
 
     const extras = [
-        { name: '🧀 Сырный взрыв', price: 1.5 },
-        { name: '🌶 Слёзы врагов', price: 0.8 },
-        { name: '🥓 Мясо X2', price: 3.0 },
-        { name: '🥔 Чипсы внутри', price: 1.2 }
+        { name: '🧀 Доп Сыр', price: 1.5 },
+        { name: '🌶 Халапеньо', price: 1.0 },
+        { name: '🥓 Бекон', price: 2.5 }
     ];
 
     let cart = [];
@@ -162,13 +169,7 @@
     let selectedExtras = new Set();
     let currentQty = 1;
 
-    // Инициализация
-    function init() {
-        if (tg.colorScheme === 'light') document.body.classList.add('light');
-        render('all');
-    }
-
-    function render(cat) {
+    function render(cat = 'all') {
         const catalog = document.getElementById('catalog');
         catalog.innerHTML = '';
         menu.forEach(item => {
@@ -176,11 +177,11 @@
             const div = document.createElement('div');
             div.className = 'item-card';
             div.innerHTML = `
-                <h3>${item.icon} ${item.name}</h3>
+                <h3>${item.name}</h3>
                 <p>${item.desc}</p>
                 <div class="price-row">
                     <span class="price">${item.price.toFixed(2)} BYN</span>
-                    <button class="add-btn" style="background:var(--primary); border:none; border-radius:10px; padding:8px 15px; font-weight:bold" onclick="openModal(${item.id})">ВЫБРАТЬ</button>
+                    <button class="add-btn" onclick="openModal(${item.id})">ВЫБРАТЬ</button>
                 </div>
             `;
             catalog.appendChild(div);
@@ -191,95 +192,76 @@
         currentItem = menu.find(m => m.id === id);
         selectedExtras.clear();
         currentQty = 1;
-        
-        document.getElementById('mName').innerText = currentItem.icon + ' ' + currentItem.name;
-        document.getElementById('mDesc').innerText = currentItem.desc;
+        document.getElementById('mName').innerText = currentItem.name;
         document.getElementById('mQty').innerText = currentQty;
         
-        const extraGrid = document.getElementById('mExtras');
-        extraGrid.innerHTML = '';
+        const mExtras = document.getElementById('mExtras');
+        mExtras.innerHTML = '';
         extras.forEach(ex => {
-            const btn = document.createElement('div');
-            btn.className = 'extra-btn';
-            btn.innerText = `${ex.name} (+${ex.price})`;
-            btn.onclick = () => toggleExtra(btn, ex);
-            extraGrid.appendChild(btn);
+            const div = document.createElement('div');
+            div.className = 'extra-item';
+            div.innerHTML = `<span>${ex.name} (+${ex.price})</span><div class="checkbox"></div>`;
+            div.onclick = () => {
+                div.classList.toggle('active');
+                selectedExtras.has(ex) ? selectedExtras.delete(ex) : selectedExtras.add(ex);
+                updateModalPrice();
+            };
+            mExtras.appendChild(div);
         });
-
         updateModalPrice();
         document.getElementById('modalOverlay').style.display = 'flex';
     }
 
-    function toggleExtra(el, ex) {
-        if (selectedExtras.has(ex)) {
-            selectedExtras.delete(ex);
-            el.classList.remove('active');
-        } else {
-            selectedExtras.add(ex);
-            el.classList.add('active');
-        }
-        updateModalPrice();
+    function updateModalPrice() {
+        let p = currentItem.price;
+        selectedExtras.forEach(e => p += e.price);
+        document.getElementById('mTotal').innerText = (p * currentQty).toFixed(2);
     }
 
     function changeQty(v) {
-        currentQty = Math.max(1, Math.min(10, currentQty + v));
+        currentQty = Math.max(1, currentQty + v);
         document.getElementById('mQty').innerText = currentQty;
         updateModalPrice();
     }
 
-    function updateModalPrice() {
-        let price = currentItem.price;
-        selectedExtras.forEach(ex => price += ex.price);
-        document.getElementById('mTotal').innerText = (price * currentQty).toFixed(2);
-    }
-
-    function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
-
     function confirmItem() {
-        let price = currentItem.price;
-        selectedExtras.forEach(ex => price += ex.price);
-        
+        let p = currentItem.price;
+        selectedExtras.forEach(e => p += e.price);
         cart.push({
             name: currentItem.name,
             qty: currentQty,
-            price: price * currentQty,
+            price: p * currentQty,
             extras: Array.from(selectedExtras).map(e => e.name)
         });
-
-        closeModal();
-        updateCartBar();
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        document.getElementById('modalOverlay').style.display = 'none';
+        updateCart();
     }
 
-    function updateCartBar() {
+    function updateCart() {
         const bar = document.getElementById('cartBar');
         if (cart.length > 0) {
             bar.style.display = 'flex';
             const total = cart.reduce((s, i) => s + i.price, 0);
-            document.getElementById('cPrice').innerText = total.toFixed(2);
             document.getElementById('cCount').innerText = cart.length;
+            document.getElementById('cPrice').innerText = total.toFixed(2);
         }
     }
 
-    function filter(c) {
+    function filter(c, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
+        el.classList.add('active');
         render(c);
     }
 
     function sendOrder() {
-        const total = cart.reduce((s, i) => s + i.price, 0);
-        const data = {
+        tg.sendData(JSON.stringify({
             items: cart,
-            total: total,
-            user: tg.initDataUnsafe.user?.first_name || "Чепух"
-        };
-        tg.sendData(JSON.stringify(data));
+            total: cart.reduce((s, i) => s + i.price, 0)
+        }));
     }
 
-    document.getElementById('themeBtn').onclick = () => document.body.classList.toggle('light');
-
-    init();
+    window.onclick = (e) => { if(e.target == document.getElementById('modalOverlay')) document.getElementById('modalOverlay').style.display = 'none'; }
+    render();
 </script>
 </body>
 </html>
