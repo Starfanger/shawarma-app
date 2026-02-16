@@ -3,43 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Шаурма Гомель</title>
+    <title>Doner Duck</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica', sans-serif;
+        }
+        
+        body {
+            background-color: #fff;
             color: #333;
             max-width: 500px;
             margin: 0 auto;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 60px;
         }
-        .card {
+        
+        /* Оранжевый хэдэр */
+        .header {
+            background: linear-gradient(to right, #ff8a00, #ff5e00);
+            padding: 15px 15px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ff5e00;
+            font-size: 20px;
+        }
+        
+        .logo-text {
+            color: white;
+            font-weight: 700;
+            font-size: 20px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .header-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff5e00;
+        }
+        
+        /* Поисковая строка */
+        .search-bar {
+            background: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-input {
+            background: #f8f8f8;
+            border-radius: 20px;
+            padding: 12px 20px;
+            width: 100%;
+            border: none;
+            font-size: 14px;
+        }
+        
+        /* Категории */
+        .categories {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category {
+            background: #f8f8f8;
+            border-radius: 20px;
+            padding: 10px 20px;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border: 1px solid #eee;
+            min-width: 100px;
+        }
+        
+        .category.active {
+            background: #ff5e00;
+            color: white;
+            border: none;
+        }
+        
+        /* Баннер */
+        .banner {
+            position: relative;
+            margin: 15px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .banner-img {
+            width: 100%;
+            height: 300px;
+            background: #ff8a00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            position: relative;
+        }
+        
+        .banner-content {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .banner-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .banner-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* Кешбэк */
+        .cashback {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            margin: 0 15px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .cashback-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cashback-icon {
+            width: 40px;
+            height: 40px;
+            background: #ff5e00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .cashback-text {
+            font-weight: 500;
+        }
+        
+        .cashback-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff5e00;
+        }
+        
+        /* Нижняя панель */
+        .bottom-bar {
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .bar-item {
+            text-align: center;
+        }
+        
+        .bar-icon {
+            width: 30px;
+            height: 30px;
+            background: #f8f8f8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px;
+            color: #666;
+        }
+        
+        .bar-text {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .bar-item.active .bar-icon {
+            background: #ff5e00;
+            color: white;
+        }
+        
+        .bar-item.active .bar-text {
+            color: #ff5e00;
+            font-weight: 500;
+        }
+        
+        /* Блок заказа */
+        .order-block {
+            padding: 15px;
+            margin: 0 15px 15px;
             background: white;
             border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
-        h1 {
-            text-align: center;
-            color: #2c6ed5;
-            margin-top: 0;
-        }
-        h2 {
-            font-size: 1.2rem;
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
             margin: 15px 0 10px;
-            color: #2c6ed5;
+            color: #333;
         }
+        
         .radio-group {
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
         }
+        
         .radio-option {
             flex: 1;
             padding: 15px;
@@ -49,15 +281,18 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+        
         .radio-option.active {
-            border-color: #2c6ed5;
-            background-color: #eef5fd;
+            border-color: #ff5e00;
+            background-color: #fff8f0;
         }
+        
         .checkbox-group {
             display: grid;
             grid-template-columns: 1fr;
             gap: 12px;
         }
+        
         .checkbox-option {
             display: flex;
             align-items: center;
@@ -66,27 +301,30 @@
             border-radius: 10px;
             cursor: pointer;
         }
+        
         .checkbox-option input {
             margin-right: 10px;
             width: 18px;
             height: 18px;
         }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            font-weight: 500;
+        
+        .price-highlight {
+            color: #ff5e00;
+            font-weight: 600;
         }
-        input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
+        
+        .total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            color: #ff5e00;
         }
-        button {
+        
+        .order-btn {
             width: 100%;
             padding: 16px;
-            background: #2c6ed5;
+            background: #ff5e00;
             color: white;
             border: none;
             border-radius: 12px;
@@ -96,42 +334,79 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        button:disabled {
-            background: #a0c4ff;
+        
+        .order-btn:disabled {
+            background: #ffcc99;
             cursor: not-allowed;
         }
+        
         .status {
             text-align: center;
             margin-top: 15px;
             font-size: 14px;
             min-height: 20px;
         }
+        
         .error {
             color: #e74c3c;
         }
-        .total {
-            font-size: 1.3rem;
-            font-weight: bold;
-            text-align: center;
-            margin: 15px 0;
-            color: #2c6ed5;
-        }
-        .price-highlight {
-            color: #e74c3c;
-            font-weight: 600;
-        }
+        
         .ingredient-info {
             font-size: 0.8rem;
             color: #666;
             margin-top: 2px;
         }
+        
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Шаурма Гомель</h1>
-        
-        <h2>Выберите тип</h2>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-img">D</div>
+            <div class="logo-text">DONER DUCK</div>
+        </div>
+        <div class="header-actions">
+            <div class="header-icon">👤</div>
+            <div class="header-icon">🛒</div>
+        </div>
+    </div>
+    
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Выберите адрес доставки или точку самовывоза">
+    </div>
+    
+    <div class="categories">
+        <div class="category active">Самовывоз</div>
+        <div class="category">Плавная</div>
+        <div class="category">Акции</div>
+        <div class="category">Отзывы</div>
+        <div class="category">Вакансии</div>
+        <div class="category">О нас</div>
+    </div>
+    
+    <div class="banner">
+        <div class="banner-img">
+            <div class="banner-content">
+                <div class="banner-title">Шаурма Классическая</div>
+                <div class="banner-subtitle">Лаваш, капуста, куриное филе, фирменный соус, томат, соленый огурец</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cashback">
+        <div class="cashback-left">
+            <div class="cashback-icon">💰</div>
+            <div class="cashback-text">Мин. сум. самовывоза</div>
+        </div>
+        <div class="cashback-amount">1 Br</div>
+    </div>
+    
+    <!-- Блок заказа -->
+    <div class="order-block">
+        <h2 class="section-title">Выберите тип</h2>
         <div class="radio-group" id="typeGroup">
             <div class="radio-option active" data-value="chicken">
                 <h3>Куриная</h3>
@@ -143,7 +418,7 @@
             </div>
         </div>
         
-        <h2>Размер</h2>
+        <h2 class="section-title">Размер</h2>
         <div class="radio-group" id="sizeGroup">
             <div class="radio-option active" data-value="standard">
                 <h3>Стандарт</h3>
@@ -155,7 +430,7 @@
             </div>
         </div>
         
-        <h2>Ингредиенты</h2>
+        <h2 class="section-title">Ингредиенты</h2>
         <div class="checkbox-group" id="ingredientsGroup">
             <label class="checkbox-option">
                 <input type="checkbox" data-price="1.50" value="extra_meat">
@@ -195,15 +470,34 @@
         <div class="total">Итого: <span id="totalAmount" class="price-highlight">5.00</span> Br</div>
         
         <div class="status" id="status"></div>
-        <button id="orderBtn">Оформить заказ</button>
+        <button id="orderBtn" class="order-btn">Оформить заказ</button>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="bar-item active">
+            <div class="bar-icon">🏠</div>
+            <div class="bar-text">Главная</div>
+        </div>
+        <div class="bar-item">
+            <div class="bar-icon">📱</div>
+            <div class="bar-text">Корзина</div>
+        </div>
+        <div class="bar-item">
+            <div class="bar-icon">⭐</div>
+            <div class="bar-text">Избранное</div>
+        </div>
+        <div class="bar-item">
+            <div class="bar-icon">💬</div>
+            <div class="bar-text">Чат</div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tg = window.Telegram.WebApp;
             tg.expand();
-            tg.setHeaderColor('#ffffff');
-            tg.setBackgroundColor('#f5f5f5');
+            tg.setHeaderColor('#ff5e00');
+            tg.setBackgroundColor('#ffffff');
             
             // Настройка кнопки "Назад"
             if (tg.BackButton) {
@@ -343,7 +637,12 @@
                     total: totalData.total,
                     currency: "BYN",
                     timestamp: new Date().toISOString(),
-                    user: tg.initDataUnsafe?.user
+                    user: {
+                        id: tg.initDataUnsafe?.user?.id,
+                        first_name: tg.initDataUnsafe?.user?.first_name,
+                        last_name: tg.initDataUnsafe?.user?.last_name,
+                        username: tg.initDataUnsafe?.user?.username
+                    }
                 };
                 
                 // Отправка данных в бот
@@ -361,6 +660,24 @@
                 setTimeout(() => {
                     tg.close();
                 }, 3000);
+            });
+            
+            // Активация категорий
+            const categories = document.querySelectorAll('.category');
+            categories.forEach(category => {
+                category.addEventListener('click', () => {
+                    categories.forEach(cat => cat.classList.remove('active'));
+                    category.classList.add('active');
+                });
+            });
+            
+            // Активация нижней панели
+            const barItems = document.querySelectorAll('.bar-item');
+            barItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    barItems.forEach(bar => bar.classList.remove('active'));
+                    item.classList.add('active');
+                });
             });
         });
     </script>
