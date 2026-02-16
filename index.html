@@ -4,682 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Doner Duck</title>
+    <!-- Подключаем скрипт Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica', sans-serif;
-        }
-        
-        body {
-            background-color: #fff;
-            color: #333;
-            max-width: 500px;
-            margin: 0 auto;
-            overflow-x: hidden;
-            position: relative;
-            padding-bottom: 60px;
-        }
-        
-        /* Оранжевый хэдэр */
-        .header {
-            background: linear-gradient(to right, #ff8a00, #ff5e00);
-            padding: 15px 15px 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo-img {
-            width: 40px;
-            height: 40px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #ff5e00;
-            font-size: 20px;
-        }
-        
-        .logo-text {
-            color: white;
-            font-weight: 700;
-            font-size: 20px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .header-icon {
-            width: 32px;
-            height: 32px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ff5e00;
-        }
-        
-        /* Поисковая строка */
-        .search-bar {
-            background: #fff;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .search-input {
-            background: #f8f8f8;
-            border-radius: 20px;
-            padding: 12px 20px;
-            width: 100%;
-            border: none;
-            font-size: 14px;
-        }
-        
-        /* Категории */
-        .categories {
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        
-        .categories::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .category {
-            background: #f8f8f8;
-            border-radius: 20px;
-            padding: 10px 20px;
-            white-space: nowrap;
-            font-size: 14px;
-            font-weight: 500;
-            color: #666;
-            border: 1px solid #eee;
-            min-width: 100px;
-        }
-        
-        .category.active {
-            background: #ff5e00;
-            color: white;
-            border: none;
-        }
-        
-        /* Баннер */
-        .banner {
-            position: relative;
-            margin: 15px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .banner-img {
-            width: 100%;
-            height: 300px;
-            background: #ff8a00;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            position: relative;
-        }
-        
-        .banner-content {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.6);
-            padding: 15px;
-            border-radius: 12px;
-        }
-        
-        .banner-title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .banner-subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        /* Кешбэк */
-        .cashback {
-            background: white;
-            padding: 15px;
-            border-radius: 16px;
-            margin: 0 15px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #f0f0f0;
-        }
-        
-        .cashback-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .cashback-icon {
-            width: 40px;
-            height: 40px;
-            background: #ff5e00;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-        
-        .cashback-text {
-            font-weight: 500;
-        }
-        
-        .cashback-amount {
-            font-size: 32px;
-            font-weight: bold;
-            color: #ff5e00;
-        }
-        
-        /* Нижняя панель */
-        .bottom-bar {
-            background: white;
-            padding: 15px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        
-        .bar-item {
-            text-align: center;
-        }
-        
-        .bar-icon {
-            width: 30px;
-            height: 30px;
-            background: #f8f8f8;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 5px;
-            color: #666;
-        }
-        
-        .bar-text {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .bar-item.active .bar-icon {
-            background: #ff5e00;
-            color: white;
-        }
-        
-        .bar-item.active .bar-text {
-            color: #ff5e00;
-            font-weight: 500;
-        }
-        
-        /* Блок заказа */
-        .order-block {
-            padding: 15px;
-            margin: 0 15px 15px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 15px 0 10px;
-            color: #333;
-        }
-        
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .radio-option {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .radio-option.active {
-            border-color: #ff5e00;
-            background-color: #fff8f0;
-        }
-        
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        
-        .checkbox-option {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        
-        .checkbox-option input {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-        }
-        
-        .price-highlight {
-            color: #ff5e00;
-            font-weight: 600;
-        }
-        
-        .total {
-            font-size: 1.3rem;
-            font-weight: bold;
-            text-align: center;
-            margin: 15px 0;
-            color: #ff5e00;
-        }
-        
-        .order-btn {
-            width: 100%;
-            padding: 16px;
-            background: #ff5e00;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .order-btn:disabled {
-            background: #ffcc99;
-            cursor: not-allowed;
-        }
-        
-        .status {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-            min-height: 20px;
-        }
-        
-        .error {
-            color: #e74c3c;
-        }
-        
-        .ingredient-info {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 2px;
-        }
-        
-        .hidden {
-            display: none;
-        }
+        body { font-family: sans-serif; margin: 0; padding: 20px; background: #fff; color: #333; }
+        .hidden { display: none; }
+        .error-box { background: #ffdddd; border: 2px solid #ff0000; padding: 20px; border-radius: 10px; text-align: center; }
+        .btn { background: #ff5e00; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        .btn:disabled { background: #ccc; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .log-area { background: #f0f0f0; padding: 10px; font-size: 12px; margin-top: 20px; border-radius: 5px; max-height: 150px; overflow-y: auto; }
+        h2 { color: #ff5e00; }
+        .option-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .option { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; }
+        .option.active { border-color: #ff5e00; background: #fff8f0; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <div class="logo-img">D</div>
-            <div class="logo-text">DONER DUCK</div>
-        </div>
-        <div class="header-actions">
-            <div class="header-icon">👤</div>
-            <div class="header-icon">🛒</div>
-        </div>
-    </div>
-    
-    <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Выберите адрес доставки или точку самовывоза">
-    </div>
-    
-    <div class="categories">
-        <div class="category active">Самовывоз</div>
-        <div class="category">Плавная</div>
-        <div class="category">Акции</div>
-        <div class="category">Отзывы</div>
-        <div class="category">Вакансии</div>
-        <div class="category">О нас</div>
-    </div>
-    
-    <div class="banner">
-        <div class="banner-img">
-            <div class="banner-content">
-                <div class="banner-title">Шаурма Классическая</div>
-                <div class="banner-subtitle">Лаваш, капуста, куриное филе, фирменный соус, томат, соленый огурец</div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="cashback">
-        <div class="cashback-left">
-            <div class="cashback-icon">💰</div>
-            <div class="cashback-text">Мин. сум. самовывоза</div>
-        </div>
-        <div class="cashback-amount">1 Br</div>
-    </div>
-    
-    <!-- Блок заказа -->
-    <div class="order-block">
-        <h2 class="section-title">Выберите тип</h2>
-        <div class="radio-group" id="typeGroup">
-            <div class="radio-option active" data-value="chicken">
-                <h3>Куриная</h3>
-                <p class="ingredient-info">Свежая курочка</p>
-            </div>
-            <div class="radio-option" data-value="beef">
-                <h3>Мясная</h3>
-                <p class="ingredient-info">Говядина высшего сорта</p>
-            </div>
-        </div>
-        
-        <h2 class="section-title">Размер</h2>
-        <div class="radio-group" id="sizeGroup">
-            <div class="radio-option active" data-value="standard">
-                <h3>Стандарт</h3>
-                <p class="ingredient-info">30 см, 5.00 Br</p>
-            </div>
-            <div class="radio-option" data-value="large">
-                <h3>Большая</h3>
-                <p class="ingredient-info">50 см, 7.50 Br</p>
-            </div>
-        </div>
-        
-        <h2 class="section-title">Ингредиенты</h2>
-        <div class="checkbox-group" id="ingredientsGroup">
-            <label class="checkbox-option">
-                <input type="checkbox" data-price="1.50" value="extra_meat">
-                Дополнительное мясо
-                <span class="ingredient-info">+1.50 Br</span>
-            </label>
-            <label class="checkbox-option">
-                <input type="checkbox" data-price="0.50" value="cucumbers">
-                Свежие огурцы
-                <span class="ingredient-info">+0.50 Br</span>
-            </label>
-            <label class="checkbox-option">
-                <input type="checkbox" data-price="0.50" value="tomatoes">
-                Помидоры черри
-                <span class="ingredient-info">+0.50 Br</span>
-            </label>
-            <label class="checkbox-option">
-                <input type="checkbox" data-price="0.00" value="onion">
-                Маринованный лук
-                <span class="ingredient-info">бесплатно</span>
-            </label>
-            <label class="checkbox-option">
-                <input type="checkbox" data-price="0.30" value="spicy_sauce">
-                Острый соус
-                <span class="ingredient-info">+0.30 Br</span>
-            </label>
-            <label class="checkbox-option">
-                <input type="checkbox" data-price="0.30" value="garlic_sauce">
-                Чесночный соус
-                <span class="ingredient-info">+0.30 Br</span>
-            </label>
-        </div>
-        
-        <label for="quantity">Количество:</label>
-        <input type="number" id="quantity" min="1" value="1">
-        
-        <div class="total">Итого: <span id="totalAmount" class="price-highlight">5.00</span> Br</div>
-        
-        <div class="status" id="status"></div>
-        <button id="orderBtn" class="order-btn">Оформить заказ</button>
+
+    <!-- Блок ошибки, если открыто не в Telegram -->
+    <div id="errorBlock" class="error-box hidden">
+        <h3>⚠️ Ошибка запуска!</h3>
+        <p>Вы открыли приложение в обычном браузере.</p>
+        <p>Пожалуйста, откройте его через кнопку в боте Telegram.</p>
+        <p id="debugInfo" style="font-size: 12px; color: #555;"></p>
     </div>
 
-    <div class="bottom-bar">
-        <div class="bar-item active">
-            <div class="bar-icon">🏠</div>
-            <div class="bar-text">Главная</div>
+    <!-- Основной контент -->
+    <div id="appContent" class="hidden">
+        <h2>🌯 Doner Duck</h2>
+        
+        <label>Тип шаурмы:</label>
+        <div class="option-group">
+            <div class="option active" onclick="selectType('chicken', this)">Куриная</div>
+            <div class="option" onclick="selectType('beef', this)">Мясная</div>
         </div>
-        <div class="bar-item">
-            <div class="bar-icon">📱</div>
-            <div class="bar-text">Корзина</div>
+
+        <label>Размер:</label>
+        <div class="option-group">
+            <div class="option active" onclick="selectSize('standard', this)">Стандарт (5.00 Br)</div>
+            <div class="option" onclick="selectSize('large', this)">Большая (7.50 Br)</div>
         </div>
-        <div class="bar-item">
-            <div class="bar-icon">⭐</div>
-            <div class="bar-text">Избранное</div>
+
+        <label>Добавки:</label>
+        <div style="margin-bottom: 15px;">
+            <label><input type="checkbox" id="ing_meat" value="extra_meat" data-price="1.50"> Дополнительное мясо (+1.50)</label><br>
+            <label><input type="checkbox" id="ing_sauce" value="spicy_sauce" data-price="0.30"> Острый соус (+0.30)</label>
         </div>
-        <div class="bar-item">
-            <div class="bar-icon">💬</div>
-            <div class="bar-text">Чат</div>
-        </div>
+
+        <label>Количество:</label>
+        <input type="number" id="qty" value="1" min="1" onchange="calcTotal()">
+
+        <h3>Итого: <span id="totalDisplay">5.00</span> Br</h3>
+
+        <button class="btn" id="orderBtn" onclick="sendOrder()">ОФОРМИТЬ ЗАКАЗ</button>
+
+        <div class="log-area" id="consoleLog">Лог событий...</div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const tg = window.Telegram.WebApp;
-            tg.expand();
-            tg.setHeaderColor('#ff5e00');
-            tg.setBackgroundColor('#ffffff');
+        const tg = window.Telegram.WebApp;
+        let currentType = 'chicken';
+        let currentSize = 'standard';
+        
+        // Цены
+        const prices = {
+            chicken: { standard: 5.00, large: 7.50 },
+            beef: { standard: 6.00, large: 8.50 }
+        };
+
+        function log(msg) {
+            const el = document.getElementById('consoleLog');
+            el.innerHTML += `<div>> ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+            console.log(msg);
+        }
+
+        // Проверка запуска
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            log("Telegram обнаружен!");
+            log("User: " + tg.initDataUnsafe.user.first_name);
             
-            // Настройка кнопки "Назад"
-            if (tg.BackButton) {
-                tg.BackButton.show();
-                tg.BackButton.onClick(() => {
-                    tg.close();
-                });
-            }
+            document.getElementById('errorBlock').classList.add('hidden');
+            document.getElementById('appContent').classList.remove('hidden');
             
-            // Базовые цены (BYN)
-            const basePrices = {
-                chicken: {
-                    standard: 5.00,
-                    large: 7.50
-                },
-                beef: {
-                    standard: 6.00,
-                    large: 8.50
-                }
+            tg.expand(); // Раскрыть на весь экран
+            tg.ready();  // Сообщить телеграму о готовности
+        } else {
+            log("Telegram НЕ обнаружен!");
+            document.getElementById('errorBlock').classList.remove('hidden');
+            document.getElementById('debugInfo').innerText = "tg.initData: " + (tg.initData ? "Есть" : "Нет");
+        }
+
+        function selectType(type, el) {
+            currentType = type;
+            document.querySelectorAll('.option-group:first-child .option').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            calcTotal();
+            log("Выбран тип: " + type);
+        }
+
+        function selectSize(size, el) {
+            currentSize = size;
+            document.querySelectorAll('.option-group:last-child .option').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            calcTotal();
+            log("Выбран размер: " + size);
+        }
+
+        function calcTotal() {
+            let base = prices[currentType][currentSize];
+            let extras = 0;
+            
+            if(document.getElementById('ing_meat').checked) extras += 1.50;
+            if(document.getElementById('ing_sauce').checked) extras += 0.30;
+            
+            let qty = parseInt(document.getElementById('qty').value) || 1;
+            let total = (base + extras) * qty;
+            
+            document.getElementById('totalDisplay').innerText = total.toFixed(2);
+            return total;
+        }
+
+        function sendOrder() {
+            const btn = document.getElementById('orderBtn');
+            btn.disabled = true;
+            btn.innerText = "Отправка...";
+            
+            log("Формирование данных заказа...");
+            
+            const orderData = {
+                type: currentType,
+                size: currentSize,
+                quantity: parseInt(document.getElementById('qty').value),
+                ingredients: [],
+                total: calcTotal(),
+                currency: "BYN"
             };
-            
-            // Текущие выбранные параметры
-            let selectedType = 'chicken';
-            let selectedSize = 'standard';
-            let selectedIngredients = [];
-            let quantity = 1;
-            
-            // Элементы интерфейса
-            const typeOptions = document.querySelectorAll('#typeGroup .radio-option');
-            const sizeOptions = document.querySelectorAll('#sizeGroup .radio-option');
-            const ingredientCheckboxes = document.querySelectorAll('#ingredientsGroup input[type="checkbox"]');
-            const quantityInput = document.getElementById('quantity');
-            const totalAmountEl = document.getElementById('totalAmount');
-            const statusEl = document.getElementById('status');
-            const orderBtn = document.getElementById('orderBtn');
-            
-            // Функция для пересчета общей суммы
-            function calculateTotal() {
-                const basePrice = basePrices[selectedType][selectedSize];
-                let extrasPrice = 0;
-                
-                // Суммируем стоимость выбранных ингредиентов
-                selectedIngredients.forEach(ingredient => {
-                    extrasPrice += parseFloat(ingredient.price);
-                });
-                
-                const itemTotal = basePrice + extrasPrice;
-                const total = itemTotal * quantity;
-                
-                // Обновляем отображение суммы
-                totalAmountEl.textContent = total.toFixed(2);
-                
-                return {
-                    basePrice,
-                    extrasPrice,
-                    itemTotal,
-                    quantity,
-                    total
-                };
-            }
-            
-            // Обработчики для выбора типа
-            typeOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    typeOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    selectedType = option.dataset.value;
-                    calculateTotal();
-                });
-            });
-            
-            // Обработчики для выбора размера
-            sizeOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    sizeOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    selectedSize = option.dataset.value;
-                    calculateTotal();
-                });
-            });
-            
-            // Обработчики для ингредиентов
-            ingredientCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    const ingredient = {
-                        value: checkbox.value,
-                        price: checkbox.dataset.price,
-                        name: checkbox.parentElement.textContent.trim().split('\n')[0]
-                    };
-                    
-                    if (checkbox.checked) {
-                        selectedIngredients.push(ingredient);
-                    } else {
-                        selectedIngredients = selectedIngredients.filter(
-                            ing => ing.value !== ingredient.value
-                        );
-                    }
-                    calculateTotal();
-                });
-            });
-            
-            // Валидация количества
-            quantityInput.addEventListener('input', () => {
-                const value = parseInt(quantityInput.value) || 0;
-                
-                if (value < 1) {
-                    statusEl.textContent = 'Минимум 1 шаурма';
-                    statusEl.className = 'status error';
-                    orderBtn.disabled = true;
-                    quantity = 1;
-                } else {
-                    statusEl.textContent = '';
-                    statusEl.className = 'status';
-                    orderBtn.disabled = false;
-                    quantity = value;
-                    calculateTotal();
-                }
-            });
-            
-            // Инициализация
-            calculateTotal();
-            
-            // Обработка заказа
-            orderBtn.addEventListener('click', () => {
-                const totalData = calculateTotal();
-                
-                const orderData = {
-                    type: selectedType,
-                    size: selectedSize,
-                    quantity: quantity,
-                    ingredients: selectedIngredients.map(ing => ({
-                        name: ing.name,
-                        price: parseFloat(ing.price)
-                    })),
-                    basePrice: basePrices[selectedType][selectedSize],
-                    extrasPrice: totalData.extrasPrice,
-                    total: totalData.total,
-                    currency: "BYN",
-                    timestamp: new Date().toISOString(),
-                    user: {
-                        id: tg.initDataUnsafe?.user?.id,
-                        first_name: tg.initDataUnsafe?.user?.first_name,
-                        last_name: tg.initDataUnsafe?.user?.last_name,
-                        username: tg.initDataUnsafe?.user?.username
-                    }
-                };
-                
-                // Отправка данных в бот
+
+            if(document.getElementById('ing_meat').checked) orderData.ingredients.push("Мясо");
+            if(document.getElementById('ing_sauce').checked) orderData.ingredients.push("Соус");
+
+            log("Данные: " + JSON.stringify(orderData));
+
+            // ГЛАВНОЕ: Отправка данных боту
+            try {
                 tg.sendData(JSON.stringify(orderData));
+                log("✅ sendData вызван успешно!");
+                btn.innerText = "Отправлено! Закрываю...";
                 
-                // Блокировка кнопки после отправки
-                orderBtn.disabled = true;
-                orderBtn.textContent = 'Заказ отправлен!';
-                
-                // Сообщение об успешном заказе
-                statusEl.textContent = 'Ваш заказ будет готов через 15 минут!';
-                statusEl.className = 'status';
-                
-                // Через 3 секунды закрываем приложение
                 setTimeout(() => {
                     tg.close();
-                }, 3000);
-            });
-            
-            // Активация категорий
-            const categories = document.querySelectorAll('.category');
-            categories.forEach(category => {
-                category.addEventListener('click', () => {
-                    categories.forEach(cat => cat.classList.remove('active'));
-                    category.classList.add('active');
-                });
-            });
-            
-            // Активация нижней панели
-            const barItems = document.querySelectorAll('.bar-item');
-            barItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    barItems.forEach(bar => bar.classList.remove('active'));
-                    item.classList.add('active');
-                });
-            });
-        });
+                }, 1500);
+            } catch (e) {
+                log("❌ Ошибка отправки: " + e.message);
+                btn.disabled = false;
+                btn.innerText = "Ошибка! Попробовать снова";
+                alert("Ошибка отправки: " + e.message);
+            }
+        }
     </script>
 </body>
 </html>
