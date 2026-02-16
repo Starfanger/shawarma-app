@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ШАУРМА</title>
+    <title>ШАУРМА PREMIER</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="menu_valakas.js"></script>
-    <script src="menu_burgers.js"></script>
-    <script src="menu_sets.js"></script>
     <style>
         :root {
             --bg: #030305;
@@ -18,7 +15,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, "Noto Color Emoji", sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg); color: #fff; margin: 0; padding: 0;
             overflow-x: hidden; -webkit-tap-highlight-color: transparent;
         }
@@ -29,42 +26,40 @@
             z-index: -1; pointer-events: none;
         }
 
-        header { padding: 30px 20px 5px; }
-        h1 { font-size: 24px; font-weight: 900; letter-spacing: -1px; margin: 0; }
+        header { padding: 25px 20px 5px; }
+        h1 { font-size: 22px; font-weight: 900; letter-spacing: -1px; margin: 0; text-transform: uppercase; }
 
         .container { padding: 0 15px 140px; max-width: 600px; margin: 0 auto; }
 
-        /* Табы с прокруткой для ПК и мобилок */
         .tabs { 
             display: flex; gap: 8px; overflow-x: auto; padding: 15px 0; 
-            scrollbar-width: none; cursor: grab;
+            scrollbar-width: none; -ms-overflow-style: none;
         }
         .tabs::-webkit-scrollbar { display: none; }
+        
         .tab {
-            padding: 10px 18px; background: var(--card); border-radius: 14px;
-            font-size: 13px; font-weight: 700; white-space: nowrap;
+            padding: 10px 16px; background: var(--card); border-radius: 12px;
+            font-size: 12px; font-weight: 700; white-space: nowrap;
             border: 1px solid var(--glass-border); transition: 0.2s;
+            cursor: pointer;
         }
-        .tab.active { background: var(--primary); color: #000; transform: scale(1.05); }
+        .tab.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
-        /* Карточки */
         #catalog { display: grid; gap: 10px; }
         .item-card {
-            background: var(--card); border-radius: 20px; padding: 16px;
+            background: var(--card); border-radius: 18px; padding: 16px;
             border: 1px solid var(--glass-border); transition: 0.2s;
-            cursor: pointer; opacity: 0; transform: translateY(10px);
-            animation: cardFadeIn 0.4s forwards;
+            cursor: pointer;
         }
-        @keyframes cardFadeIn { to { opacity: 1; transform: translateY(0); } }
         .item-card:active { transform: scale(0.97); border-color: var(--accent); }
-        .item-card h3 { margin: 0 0 4px; font-size: 17px; color: var(--accent); }
-        .item-card p { font-size: 12px; color: #888; margin-bottom: 12px; line-height: 1.3; }
+        .item-card h3 { margin: 0 0 4px; font-size: 16px; color: var(--accent); }
+        .item-card p { font-size: 12px; color: #888; margin: 0 0 12px; line-height: 1.3; }
 
         .price-row { display: flex; justify-content: space-between; align-items: center; }
-        .price { font-weight: 800; font-size: 16px; }
+        .price { font-weight: 800; font-size: 15px; }
         .add-btn { background: var(--primary); color: #000; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 11px; }
 
-        /* Модальные окна (Fixed Animations) */
+        /* Модалки */
         .overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
@@ -73,58 +68,55 @@
         .overlay.active { opacity: 1; pointer-events: auto; }
         .modal {
             background: #0a0a0c; width: 100%; max-width: 500px; border-radius: 24px 24px 0 0;
-            padding: 30px 20px; transform: translateY(100%);
+            padding: 25px 20px; transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .overlay.active .modal { transform: translateY(0); }
 
         .extra-row {
-            display: flex; justify-content: space-between; padding: 14px 18px;
-            background: rgba(255,255,255,0.03); border-radius: 14px; margin-bottom: 8px;
-            border: 1px solid transparent; cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; padding: 14px;
+            background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px;
+            border: 1px solid transparent; cursor: pointer; font-size: 14px;
         }
         .extra-row.selected { border-color: var(--accent); background: rgba(0,255,163,0.1); }
 
-        /* Корзина */
         .cart-bar {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: calc(100% - 40px); max-width: 500px;
-            background: var(--accent); color: #000; border-radius: 20px;
-            padding: 18px 24px; display: none; justify-content: space-between;
+            background: var(--accent); color: #000; border-radius: 18px;
+            padding: 18px 22px; display: none; justify-content: space-between;
             align-items: center; font-weight: 900; z-index: 900; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 255, 163, 0.2);
         }
 
         .cart-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 14px; background: rgba(255,255,255,0.02);
-            border-radius: 16px; margin-bottom: 10px; cursor: pointer;
+            padding: 12px; background: rgba(255,255,255,0.02);
+            border-radius: 14px; margin-bottom: 8px;
         }
-        .q-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; cursor: pointer; }
+        .q-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; }
     </style>
 </head>
 <body>
 
 <div class="bg-glow"></div>
-<header><h1>ШАУРМА</h1></header>
+<header><h1>МЕМНОЕ МЕНЮ</h1></header>
 
 <div class="container">
     <div class="tabs">
         <div class="tab active" onclick="filter('valakas', this)">👴 ВАЛАКАС</div>
-        <div class="tab" onclick="filter('opop', this)">🕺 ОП-ОП</div>
-        <div class="tab" onclick="filter('simonov', this)">👑 СИМОНОВ</div>
         <div class="tab" onclick="filter('burgers', this)">🍔 БУРГЕРЫ</div>
+        <div class="tab" onclick="filter('sets', this)">🍱 СЕТЫ</div>
     </div>
     <div id="catalog"></div>
 </div>
 
 <div id="modalOverlay" class="overlay" onclick="closeAll()">
     <div class="modal" onclick="event.stopPropagation()">
-        <h2 id="mName" style="margin:0; font-size: 22px;"></h2>
+        <h2 id="mName" style="margin:0; font-size: 20px;"></h2>
         <p id="mDesc" style="color:#666; font-size:13px; margin:8px 0 20px"></p>
         <div id="mExtras"></div>
-        <div id="mTotal" style="text-align:center; font-size:24px; font-weight:900; margin:25px 0">0.00 BYN</div>
-        <button onclick="addToCart()" style="width:100%; padding:20px; border-radius:18px; border:none; background:var(--accent); color:#000; font-weight:900; font-size:16px; cursor:pointer;">
+        <div id="mTotal" style="text-align:center; font-size:22px; font-weight:900; margin:20px 0"></div>
+        <button onclick="addToCart()" style="width:100%; padding:18px; border-radius:15px; border:none; background:var(--accent); color:#000; font-weight:900; font-size:15px;">
             ПОДТВЕРДИТЬ
         </button>
     </div>
@@ -132,14 +124,14 @@
 
 <div id="cartOverlay" class="overlay" onclick="closeAll()">
     <div class="modal" onclick="event.stopPropagation()">
-        <h2 style="margin-bottom:20px; font-size: 20px;">Корзина</h2>
-        <div id="cartList" style="max-height:45vh; overflow-y:auto"></div>
-        <div style="margin-top:20px; border-top:1px solid #222; padding-top:20px">
-            <div style="display:flex; justify-content:space-between; font-size:22px; font-weight:900; margin-bottom:20px">
+        <h2 style="margin-bottom:15px; font-size: 18px;">Корзина</h2>
+        <div id="cartList" style="max-height:40vh; overflow-y:auto"></div>
+        <div style="margin-top:15px; border-top:1px solid #222; padding-top:15px">
+            <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:900; margin-bottom:15px">
                 <span>ИТОГО:</span> <span id="cartFullPrice">0</span>
             </div>
-            <button onclick="sendOrder()" style="width:100%; padding:20px; border-radius:18px; border:none; background:#fff; color:#000; font-weight:900; font-size:16px; cursor:pointer;">
-                ОТПРАВИТЬ ЗАКАЗ
+            <button onclick="sendOrder()" style="width:100%; padding:18px; border-radius:15px; border:none; background:#fff; color:#000; font-weight:900; font-size:15px;">
+                ЗАКАЗАТЬ
             </button>
         </div>
     </div>
@@ -154,7 +146,74 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    const menu = [...valakasMenu, ...burgerMenu, ...setsMenu];
+    const menu = [
+        // ВАЛАКАС (20)
+        { id: 1, cat: 'valakas', name: '👴 Да-да-я Классик', price: 7.0, desc: '54 года выдержки. Базовый свиток.' },
+        { id: 2, cat: 'valakas', name: '👟 Пенисы Кролика', price: 9.5, desc: 'Те самые тапки. Очень мягкое мясо.' },
+        { id: 3, cat: 'valakas', name: '💊 Тупа Отдых', price: 8.0, desc: 'Для спокойного вечера в Самаре.' },
+        { id: 4, cat: 'valakas', name: '📞 Линейная АЛЁ', price: 10.0, desc: 'Длинная шаурма, пробивает связь.' },
+        { id: 5, cat: 'valakas', name: '🎸 Гитарный Бой', price: 11.0, desc: 'Острая, как соло на струнах.' },
+        { id: 6, cat: 'valakas', name: '👵 Внучка Жмышенко', price: 8.5, desc: 'Нежная курочка, как любовь деда.' },
+        { id: 7, cat: 'valakas', name: '👮‍♂️ Здравия Желаю', price: 9.0, desc: 'Уставная, скручена по ГОСТу.' },
+        { id: 8, cat: 'valakas', name: '🦇 Тупа Пожилой Рок', price: 12.0, desc: 'С черным лавашом.' },
+        { id: 9, cat: 'valakas', name: '💨 Жмых-Ролл', price: 7.5, desc: 'После неё в голове только туман.' },
+        { id: 10, cat: 'valakas', name: '🍞 Хлебный Мякиш', price: 5.0, desc: 'Прикол для своих.' },
+        { id: 11, cat: 'valakas', name: '📺 Эфирная 228', price: 10.5, desc: 'Запрещенка в лаваше.' },
+        { id: 12, cat: 'valakas', name: '🐁 Кроличий Хвост', price: 8.0, desc: 'Маленькая, но сочная.' },
+        { id: 13, cat: 'valakas', name: '🎹 Фортепиано Деда', price: 13.0, desc: 'Многослойная.' },
+        { id: 14, cat: 'valakas', name: '🍺 Пенная Вечеринка', price: 9.0, desc: 'Под дедовский напиток.' },
+        { id: 15, cat: 'valakas', name: '🦴 Широкая Кость', price: 14.0, desc: 'Мяса больше, чем лаваша.' },
+        { id: 16, cat: 'valakas', name: '🕶 Скрытая Камера', price: 11.0, desc: 'Внутри сюрприз.' },
+        { id: 17, cat: 'valakas', name: '🏠 Самарский Привоз', price: 9.5, desc: 'Вкус родины.' },
+        { id: 18, cat: 'valakas', name: '⛏ Шахтерская Смена', price: 10.0, desc: 'Для работяг.' },
+        { id: 19, cat: 'valakas', name: '🎭 Маска Деда', price: 8.5, desc: 'Скрывает голод.' },
+        { id: 20, cat: 'valakas', name: '👴 Пожилой Гигант', price: 18.0, desc: '80см удовольствия.' },
+
+        // БУРГЕРЫ (20)
+        { id: 31, cat: 'burgers', name: '🍔 ГИГА-ЖМЫХ', price: 15.0, desc: 'Размером с голову.' },
+        { id: 32, cat: 'burgers', name: '🥓 Батин Хайп', price: 12.0, desc: 'Много бекона.' },
+        { id: 33, cat: 'burgers', name: '👊 Широкая Кость XL', price: 16.5, desc: 'Такой скелет.' },
+        { id: 34, cat: 'burgers', name: '🤴 Король Дизлайков', price: 14.0, desc: 'Мясо кабана.' },
+        { id: 35, cat: 'burgers', name: '🚗 Хайповый Кабрик', price: 13.5, desc: 'Без верхней булки.' },
+        { id: 36, cat: 'burgers', name: '🤜 Сила Симонова', price: 11.0, desc: 'Пробивает насквозь.' },
+        { id: 37, cat: 'burgers', name: '📈 Дизлайк-Бургер', price: 9.0, desc: 'Кислый и луковый.' },
+        { id: 38, cat: 'burgers', name: '💸 Зарплата Лаки', price: 20.0, desc: 'Элитный.' },
+        { id: 39, cat: 'burgers', name: '🧀 Сырный Хейтер', price: 11.5, desc: 'Залит сыром.' },
+        { id: 40, cat: 'burgers', name: '📦 Посылка из Самары', price: 12.0, desc: 'В коробке.' },
+        { id: 41, cat: 'burgers', name: '🧨 Взрыв Хайпа', price: 14.5, desc: 'Очень острый.' },
+        { id: 42, cat: 'burgers', name: '🦢 Белый Лебедь', price: 13.0, desc: 'Для романтиков.' },
+        { id: 43, cat: 'burgers', name: '🏔 Эльбрус', price: 19.0, desc: '4 котлеты.' },
+        { id: 44, cat: 'burgers', name: '🚜 Тракторист', price: 10.5, desc: 'Грубый и сытный.' },
+        { id: 45, cat: 'burgers', name: '🌑 Черный Диз', price: 13.0, desc: 'Черная булка.' },
+        { id: 46, cat: 'burgers', name: '🥑 Авокадо Хайп', price: 15.0, desc: 'Модный дед.' },
+        { id: 47, cat: 'burgers', name: '🦐 Морской Жмых', price: 16.0, desc: 'С креветками.' },
+        { id: 48, cat: 'burgers', name: '🥓 Беконный Замес', price: 12.5, desc: 'Бекон везде.' },
+        { id: 49, cat: 'burgers', name: '🥚 Яичный Рофл', price: 11.0, desc: 'С глазуньей.' },
+        { id: 50, cat: 'burgers', name: '🦾 Железный Денис', price: 17.5, desc: 'Мощный.' },
+
+        // СЕТЫ (20)
+        { id: 101, cat: 'sets', name: '🕺 Сет Сприподвыподвертом', price: 45.0, desc: '20 роллов.' },
+        { id: 102, cat: 'sets', name: '💨 Сет Движение', price: 38.0, desc: 'Быстрый вкус.' },
+        { id: 103, cat: 'sets', name: '⛪️ Поднизовский Свиток', price: 12.0, desc: 'Освященный.' },
+        { id: 104, cat: 'sets', name: '🎭 Маски-Шоу', price: 30.0, desc: 'Сюрприз.' },
+        { id: 105, cat: 'sets', name: '🥋 Черный Пояс', price: 25.0, desc: 'Угорь.' },
+        { id: 106, cat: 'sets', name: '🏃‍♂️ Оп-Оп Экспресс', price: 22.0, desc: 'Для спешащих.' },
+        { id: 107, cat: 'sets', name: '📦 Посылка от Бати', price: 55.0, desc: '80 штук.' },
+        { id: 108, cat: 'sets', name: '🍤 Креветочный Угар', price: 32.0, desc: 'Много креветок.' },
+        { id: 109, cat: 'sets', name: '🥒 Огуречный Кураж', price: 15.0, desc: 'Веган.' },
+        { id: 110, cat: 'sets', name: '🍣 Император Хайпа', price: 50.0, desc: 'С золотом.' },
+        { id: 111, cat: 'sets', name: '🌶 Острый Замес', price: 28.0, desc: 'Шрирача.' },
+        { id: 112, cat: 'sets', name: '🥓 Бекон-Ролл Сет', price: 35.0, desc: 'Симонов ок.' },
+        { id: 113, cat: 'sets', name: '🍎 Яблочный Рофл', price: 18.0, desc: 'Сладкие.' },
+        { id: 114, cat: 'sets', name: '🌋 Вулкан Валакаса', price: 40.0, desc: 'Запеченные.' },
+        { id: 115, cat: 'sets', name: '🐟 Рыбный День', price: 29.0, desc: 'Много рыбы.' },
+        { id: 116, cat: 'sets', name: '🍗 Куриный Оп-Оп', price: 24.0, desc: 'С курицей.' },
+        { id: 117, cat: 'sets', name: '🧀 Сырный Загул', price: 31.0, desc: 'Много сыра.' },
+        { id: 118, cat: 'sets', name: '🌈 Радужный Хайп', price: 27.0, desc: 'Цветной рис.' },
+        { id: 119, cat: 'sets', name: '🌑 Ночной Дожор', price: 33.0, desc: 'После 00:00.' },
+        { id: 120, cat: 'sets', name: '👴 Дедов Архив', price: 60.0, desc: 'Старый рецепт.' }
+    ];
+
     const extras = [
         { name: '🧀 Жир Жмышенко', price: 1.5 },
         { name: '🌶 Слёзы Линейной', price: 1.0 },
@@ -169,10 +228,9 @@
     function render(cat = 'valakas') {
         const catalog = document.getElementById('catalog');
         catalog.innerHTML = '';
-        menu.filter(i => i.cat === cat).forEach((item, index) => {
+        menu.filter(i => i.cat === cat).forEach(item => {
             const div = document.createElement('div');
             div.className = 'item-card';
-            div.style.animationDelay = (index * 0.03) + 's';
             div.onclick = () => openItem(item.id);
             div.innerHTML = `
                 <h3>${item.name}</h3>
@@ -217,7 +275,6 @@
         });
         updateTempPrice();
         document.getElementById('modalOverlay').classList.add('active');
-        document.getElementById('cartOverlay').classList.remove('active');
     }
 
     function updateTempPrice() {
@@ -247,7 +304,6 @@
         
         closeAll();
         updateBar();
-        if(editingCid) openCart();
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
     }
 
