@@ -126,21 +126,49 @@
             return total;
         }
 
-        function sendOrder() {
-            const btn = document.getElementById('orderBtn');
-            btn.disabled = true;
-            btn.innerText = "Отправка...";
-            
-            log("Формирование данных заказа...");
-            
-            const orderData = {
-                type: currentType,
-                size: currentSize,
-                quantity: parseInt(document.getElementById('qty').value),
-                ingredients: [],
-                total: calcTotal(),
-                currency: "BYN"
-            };
+       function sendOrder() {
+    const btn = document.getElementById('orderBtn');
+    
+    // 1. Показываем всплывающее окно для проверки
+    alert("НАЧАЛО ОТПРАВКИ! Данные готовы.");
+    
+    btn.disabled = true;
+    btn.innerText = "Отправка...";
+    
+    log("Формирование данных...");
+    
+    const orderData = {
+        type: currentType,
+        size: currentSize,
+        quantity: parseInt(document.getElementById('qty').value),
+        ingredients: [],
+        total: calcTotal(),
+        currency: "BYN",
+        test_id: Math.random() // Добавим случайное число, чтобы видеть уникальность
+    };
+
+    if(document.getElementById('ing_meat').checked) orderData.ingredients.push("Мясо");
+    if(document.getElementById('ing_sauce').checked) orderData.ingredients.push("Соус");
+
+    log("Данные: " + JSON.stringify(orderData));
+
+    try {
+        // 2. Пробуем отправить
+        tg.sendData(JSON.stringify(orderData));
+        log("✅ sendData вызван!");
+        
+        // 3. Второе всплывающее окно
+        setTimeout(() => {
+            alert("ОТПРАВЛЕНО В TELEGRAM! Теперь ждем ответа бота...");
+            tg.close();
+        }, 500);
+        
+    } catch (e) {
+        log("❌ Ошибка: " + e.message);
+        alert("ОШИБКА ОТПРАВКИ: " + e.message);
+        btn.disabled = false;
+    }
+}
 
             if(document.getElementById('ing_meat').checked) orderData.ingredients.push("Мясо");
             if(document.getElementById('ing_sauce').checked) orderData.ingredients.push("Соус");
