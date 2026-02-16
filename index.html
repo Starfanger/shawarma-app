@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Шаурма Гомель</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c6ed5;
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 1.2rem;
+            margin: 15px 0 10px;
+            color: #2c6ed5;
+        }
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .radio-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .radio-option.active {
+            border-color: #2c6ed5;
+            background-color: #eef5fd;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .checkbox-option input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: #2c6ed5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:disabled {
+            background: #a0c4ff;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            color: #2c6ed5;
+        }
+        .price-highlight {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .ingredient-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Шаурма Гомель</h1>
+        
+        <h2>Выберите тип</h2>
+        <div class="radio-group" id="typeGroup">
+            <div class="radio-option active" data-value="chicken">
+                <h3>Куриная</h3>
+                <p class="ingredient-info">Свежая курочка</p>
+            </div>
+            <div class="radio-option" data-value="beef">
+                <h3>Мясная</h3>
+                <p class="ingredient-info">Говядина высшего сорта</p>
+            </div>
+        </div>
+        
+        <h2>Размер</h2>
+        <div class="radio-group" id="sizeGroup">
+            <div class="radio-option active" data-value="standard">
+                <h3>Стандарт</h3>
+                <p class="ingredient-info">30 см, 5.00 Br</p>
+            </div>
+            <div class="radio-option" data-value="large">
+                <h3>Большая</h3>
+                <p class="ingredient-info">50 см, 7.50 Br</p>
+            </div>
+        </div>
+        
+        <h2>Ингредиенты</h2>
+        <div class="checkbox-group" id="ingredientsGroup">
+            <label class="checkbox-option">
+                <input type="checkbox" data-price="1.50" value="extra_meat">
+                Дополнительное мясо
+                <span class="ingredient-info">+1.50 Br</span>
+            </label>
+            <label class="checkbox-option">
+                <input type="checkbox" data-price="0.50" value="cucumbers">
+                Свежие огурцы
+                <span class="ingredient-info">+0.50 Br</span>
+            </label>
+            <label class="checkbox-option">
+                <input type="checkbox" data-price="0.50" value="tomatoes">
+                Помидоры черри
+                <span class="ingredient-info">+0.50 Br</span>
+            </label>
+            <label class="checkbox-option">
+                <input type="checkbox" data-price="0.00" value="onion">
+                Маринованный лук
+                <span class="ingredient-info">бесплатно</span>
+            </label>
+            <label class="checkbox-option">
+                <input type="checkbox" data-price="0.30" value="spicy_sauce">
+                Острый соус
+                <span class="ingredient-info">+0.30 Br</span>
+            </label>
+            <label class="checkbox-option">
+                <input type="checkbox" data-price="0.30" value="garlic_sauce">
+                Чесночный соус
+                <span class="ingredient-info">+0.30 Br</span>
+            </label>
+        </div>
+        
+        <label for="quantity">Количество:</label>
+        <input type="number" id="quantity" min="1" value="1">
+        
+        <div class="total">Итого: <span id="totalAmount" class="price-highlight">5.00</span> Br</div>
+        
+        <div class="status" id="status"></div>
+        <button id="orderBtn">Оформить заказ</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.setHeaderColor('#ffffff');
+            tg.setBackgroundColor('#f5f5f5');
+            
+            // Настройка кнопки "Назад"
+            if (tg.BackButton) {
+                tg.BackButton.show();
+                tg.BackButton.onClick(() => {
+                    tg.close();
+                });
+            }
+            
+            // Базовые цены (BYN)
+            const basePrices = {
+                chicken: {
+                    standard: 5.00,
+                    large: 7.50
+                },
+                beef: {
+                    standard: 6.00,
+                    large: 8.50
+                }
+            };
+            
+            // Текущие выбранные параметры
+            let selectedType = 'chicken';
+            let selectedSize = 'standard';
+            let selectedIngredients = [];
+            let quantity = 1;
+            
+            // Элементы интерфейса
+            const typeOptions = document.querySelectorAll('#typeGroup .radio-option');
+            const sizeOptions = document.querySelectorAll('#sizeGroup .radio-option');
+            const ingredientCheckboxes = document.querySelectorAll('#ingredientsGroup input[type="checkbox"]');
+            const quantityInput = document.getElementById('quantity');
+            const totalAmountEl = document.getElementById('totalAmount');
+            const statusEl = document.getElementById('status');
+            const orderBtn = document.getElementById('orderBtn');
+            
+            // Функция для пересчета общей суммы
+            function calculateTotal() {
+                const basePrice = basePrices[selectedType][selectedSize];
+                let extrasPrice = 0;
+                
+                // Суммируем стоимость выбранных ингредиентов
+                selectedIngredients.forEach(ingredient => {
+                    extrasPrice += parseFloat(ingredient.price);
+                });
+                
+                const itemTotal = basePrice + extrasPrice;
+                const total = itemTotal * quantity;
+                
+                // Обновляем отображение суммы
+                totalAmountEl.textContent = total.toFixed(2);
+                
+                return {
+                    basePrice,
+                    extrasPrice,
+                    itemTotal,
+                    quantity,
+                    total
+                };
+            }
+            
+            // Обработчики для выбора типа
+            typeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    typeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    selectedType = option.dataset.value;
+                    calculateTotal();
+                });
+            });
+            
+            // Обработчики для выбора размера
+            sizeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    sizeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    selectedSize = option.dataset.value;
+                    calculateTotal();
+                });
+            });
+            
+            // Обработчики для ингредиентов
+            ingredientCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    const ingredient = {
+                        value: checkbox.value,
+                        price: checkbox.dataset.price,
+                        name: checkbox.parentElement.textContent.trim().split('\n')[0]
+                    };
+                    
+                    if (checkbox.checked) {
+                        selectedIngredients.push(ingredient);
+                    } else {
+                        selectedIngredients = selectedIngredients.filter(
+                            ing => ing.value !== ingredient.value
+                        );
+                    }
+                    calculateTotal();
+                });
+            });
+            
+            // Валидация количества
+            quantityInput.addEventListener('input', () => {
+                const value = parseInt(quantityInput.value) || 0;
+                
+                if (value < 1) {
+                    statusEl.textContent = 'Минимум 1 шаурма';
+                    statusEl.className = 'status error';
+                    orderBtn.disabled = true;
+                    quantity = 1;
+                } else {
+                    statusEl.textContent = '';
+                    statusEl.className = 'status';
+                    orderBtn.disabled = false;
+                    quantity = value;
+                    calculateTotal();
+                }
+            });
+            
+            // Инициализация
+            calculateTotal();
+            
+            // Обработка заказа
+            orderBtn.addEventListener('click', () => {
+                const totalData = calculateTotal();
+                
+                const orderData = {
+                    type: selectedType,
+                    size: selectedSize,
+                    quantity: quantity,
+                    ingredients: selectedIngredients.map(ing => ({
+                        name: ing.name,
+                        price: parseFloat(ing.price)
+                    })),
+                    basePrice: basePrices[selectedType][selectedSize],
+                    extrasPrice: totalData.extrasPrice,
+                    total: totalData.total,
+                    currency: "BYN",
+                    timestamp: new Date().toISOString(),
+                    user: tg.initDataUnsafe?.user
+                };
+                
+                // Отправка данных в бот
+                tg.sendData(JSON.stringify(orderData));
+                
+                // Блокировка кнопки после отправки
+                orderBtn.disabled = true;
+                orderBtn.textContent = 'Заказ отправлен!';
+                
+                // Сообщение об успешном заказе
+                statusEl.textContent = 'Ваш заказ будет готов через 15 минут!';
+                statusEl.className = 'status';
+                
+                // Через 3 секунды закрываем приложение
+                setTimeout(() => {
+                    tg.close();
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
