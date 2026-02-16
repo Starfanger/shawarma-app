@@ -3,111 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Шаурма</title>
+    <title>ШАУРМА "ЯХАЙ БАЛЯ" 🥙</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #050505;
-            --card: #121212;
+            --bg: #08080a;
+            --card: rgba(20, 20, 25, 0.6);
             --primary: #ffffff;
-            --secondary: #222222;
-            --accent: #ffdd00;
-            --text: #ffffff;
-            --text-muted: #888888;
-        }
-
-        body.light {
-            --bg: #f8f8f8;
-            --card: #ffffff;
-            --primary: #000000;
-            --secondary: #f0f0f0;
-            --text: #000000;
-            --text-muted: #666666;
+            --accent: #00ff88;
+            --text-muted: #888890;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
         body {
-            /* Принудительно ищем Noto Color Emoji, который заменил твой скрипт */
-            font-family: 'Inter', -apple-system, "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+            font-family: 'Inter', -apple-system, "Noto Color Emoji", sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--primary);
             margin: 0; padding: 0;
-            transition: background 0.3s;
-            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        header {
-            padding: 24px 20px;
-            display: flex; justify-content: space-between; align-items: center;
+        /* Фоновое свечение */
+        body::before {
+            content: "";
+            position: fixed; top: -10%; right: -10%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, transparent 70%);
+            z-index: -1; pointer-events: none;
         }
 
-        h1 { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin: 0; text-transform: uppercase; }
+        header { padding: 30px 20px 10px; }
+        h1 { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; margin: 0; text-transform: uppercase; }
 
         .container { padding: 0 20px 140px; }
 
-        /* Категории (Minimal Pill Style) */
-        .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; }
+        /* Табы */
+        .tabs { display: flex; gap: 10px; overflow-x: auto; padding: 20px 0; scrollbar-width: none; }
         .tab {
-            padding: 8px 16px; background: var(--secondary); border-radius: 12px;
+            padding: 10px 18px; background: var(--glass); border-radius: 14px;
             font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--text-muted);
-            transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
         }
-        .tab.active { background: var(--primary); color: var(--bg); }
+        .tab.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
-        /* Карточки товаров */
+        /* Карточки */
         .item-card {
-            background: var(--card); border-radius: 20px; padding: 20px;
-            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.1s ease;
+            background: var(--card); border-radius: 24px; padding: 20px;
+            margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .item-card:active { transform: scale(0.98); }
-        .item-card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
-        .item-card p { font-size: 14px; color: var(--text-muted); margin: 0 0 16px; line-height: 1.4; }
+        .item-card:hover, .item-card:active {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            background: rgba(0, 255, 136, 0.03);
+        }
+        .item-card h3 { margin: 0 0 8px; font-size: 19px; }
+        .item-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 15px; }
         
         .price-row { display: flex; justify-content: space-between; align-items: center; }
-        .price { font-size: 17px; font-weight: 700; }
+        .price { font-weight: 800; font-size: 18px; color: var(--accent); }
         .add-btn {
-            background: var(--primary); color: var(--bg); border: none;
-            padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 13px;
+            background: var(--primary); color: #000; border: none;
+            padding: 12px 20px; border-radius: 14px; font-weight: 800;
         }
 
-        /* Модальное окно (Apple Sheet Style) */
-        #modalOverlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            display: none; justify-content: center; align-items: flex-end; z-index: 1000;
+        /* Модалка Допов */
+        #modalOverlay, #cartOverlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px); display: none; z-index: 1000;
+            justify-content: center; align-items: flex-end;
         }
         .modal {
-            background: var(--card); width: 100%; border-radius: 24px 24px 0 0;
-            padding: 30px 20px 40px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            background: #121214; width: 100%; border-radius: 30px 30px 0 0;
+            padding: 30px 20px 40px; animation: slideUp 0.3s ease;
         }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .extra-item {
+            display: flex; justify-content: space-between; padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .extra-item.selected { color: var(--accent); }
+
+        /* Управление Корзиной */
+        .cart-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .extra-item:last-child { border: none; }
-        
-        .checkbox {
-            width: 24px; height: 24px; border: 2px solid var(--text-muted);
-            border-radius: 6px; position: relative; transition: 0.2s;
+        .qty-ctrl { display: flex; align-items: center; gap: 15px; }
+        .btn-qty { 
+            width: 30px; height: 30px; border-radius: 8px; border: 1px solid #333;
+            background: none; color: #fff; font-size: 18px;
         }
-        .extra-item.active .checkbox { background: var(--accent); border-color: var(--accent); }
 
-        /* Счетчик */
-        .qty-box {
-            display: flex; align-items: center; justify-content: center;
-            gap: 30px; margin: 30px 0; background: var(--secondary);
-            padding: 12px; border-radius: 16px;
-        }
-        .qty-btn { font-size: 24px; background: none; border: none; color: var(--text); padding: 0 10px; }
-
-        /* Кнопка заказа */
-        .footer-cart {
+        /* Плашка Корзины */
+        .cart-bar {
             position: fixed; bottom: 30px; left: 20px; right: 20px;
-            background: var(--primary); color: var(--bg);
-            border-radius: 18px; padding: 18px 24px;
-            display: none; justify-content: space-between; align-items: center;
-            font-weight: 800; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            z-index: 900;
+            background: var(--primary); color: #000;
+            border-radius: 20px; padding: 20px; display: none;
+            justify-content: space-between; align-items: center;
+            font-weight: 900; z-index: 900; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
     </style>
 </head>
@@ -115,36 +112,47 @@
 
 <header>
     <h1>ШАУРМА</h1>
-    <div onclick="document.body.classList.toggle('light')" style="font-size: 20px; opacity: 0.5;">🌓</div>
 </header>
 
 <div class="container">
-    <div class="tabs">
+    <div class="tabs" id="tabsList">
         <div class="tab active" onclick="filter('all', this)">Все</div>
-        <div class="tab" onclick="filter('classic', this)">Классика</div>
-        <div class="tab" onclick="filter('special', this)">Особое</div>
+        <div class="tab" onclick="filter('elderly', this)">👴 Жмышенко</div>
+        <div class="tab" onclick="filter('opop', this)">🕺 Оп-Оп</div>
+        <div class="tab" onclick="filter('kings', this)">👑 Короли</div>
     </div>
     <div id="catalog"></div>
 </div>
 
 <div id="modalOverlay">
     <div class="modal">
-        <h2 id="mName" style="margin-top:0">Название</h2>
+        <h2 id="mName">Название</h2>
         <div id="mExtras"></div>
-        <div class="qty-box">
-            <button class="qty-btn" onclick="changeQty(-1)">−</button>
-            <span id="mQty" style="font-size: 20px; font-weight: 800;">1</span>
-            <button class="qty-btn" onclick="changeQty(1)">+</button>
-        </div>
-        <button onclick="confirmItem()" style="width: 100%; padding: 18px; border-radius: 16px; border: none; background: var(--primary); color: var(--bg); font-weight: 800; font-size: 16px;">
-            Добавить за <span id="mTotal">0</span> BYN
+        <div style="margin: 20px 0; text-align: center; font-size: 24px; font-weight: 900;" id="mTotal">0 BYN</div>
+        <button onclick="addToCart()" style="width: 100%; padding: 20px; border-radius: 18px; border: none; background: var(--accent); color: #000; font-weight: 900;">
+            ДОБАВИТЬ В КОРЗИНУ
         </button>
     </div>
 </div>
 
-<div class="footer-cart" id="cartBar" onclick="sendOrder()">
-    <span>КОРЗИНА (<span id="cCount">0</span>)</span>
-    <span><span id="cPrice">0</span> BYN</span>
+<div id="cartOverlay">
+    <div class="modal" style="max-height: 80vh; overflow-y: auto;">
+        <h2 style="display: flex; justify-content: space-between;">Корзина <span onclick="closeCart()" style="opacity:0.5; font-size: 16px;">Закрыть</span></h2>
+        <div id="cartList"></div>
+        <div style="margin-top: 20px; border-top: 2px solid #222; padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: 900; margin-bottom: 20px;">
+                <span>ИТОГО:</span> <span id="cartFullPrice">0</span>
+            </div>
+            <button onclick="sendOrder()" style="width: 100%; padding: 20px; border-radius: 18px; border: none; background: var(--primary); color: #000; font-weight: 900;">
+                ОТПРАВИТЬ ЗАКАЗ
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="cart-bar" id="cartBar" onclick="openCart()">
+    <span>КОРЗИНА: <span id="cCount">0</span></span>
+    <span>СМОТРЕТЬ: <span id="cPrice">0</span> BYN</span>
 </div>
 
 <script>
@@ -152,22 +160,23 @@
     tg.expand();
 
     const menu = [
-        { id: 1, cat: 'classic', name: '🌯 Классика Жопы', price: 7.5, desc: 'Та самая, с которой всё началось. Соус по секретному рецепту.' },
-        { id: 2, cat: 'special', name: '🔥 Жгучий Дед', price: 9.0, desc: 'Острая, как шутки за 300. Пробивает насквозь.' },
-        { id: 3, cat: 'classic', name: '🧀 Сырный Куш', price: 10.5, desc: 'Четыре сыра и одна шаурма. Тянется до соседнего района.' },
-        { id: 4, cat: 'special', name: '🏆 Легенда 54', price: 12.0, desc: 'Элитный сверток для тех, кто познал жизнь.' }
+        { id: 1, cat: 'elderly', name: '👴 Пожилой Рофл', price: 7.0, desc: 'Да-да-я! Классика от Валерия Жмышенко. 54 года выдержки.' },
+        { id: 2, cat: 'elderly', name: '👟 Пенисы Кролика', price: 9.5, desc: 'Легендарные тапки в лаваше. Вкус Дениса Сухачева.' },
+        { id: 3, cat: 'opop', name: '🕺 Оп-Оп Сприподвыподвертом', price: 8.5, desc: 'Движение - жизнь! Шаурма, которая сама залетает в рот.' },
+        { id: 4, cat: 'opop', name: '⛪️ Монастырская Специя', price: 11.0, desc: 'Из поднизовских краев. Освящена лично Глад Валакасом.' },
+        { id: 5, cat: 'kings', name: '👑 Король Дизлайков', price: 10.0, desc: 'От Сергея Симонова. Максимальный хайп, внутри мясо кабана.' },
+        { id: 6, cat: 'kings', name: '🤜 Широкая кость', price: 13.0, desc: 'Двойная порция всего. Для тех, кто на массе.' }
     ];
 
     const extras = [
-        { name: '🧀 Доп Сыр', price: 1.5 },
-        { name: '🌶 Халапеньо', price: 1.0 },
-        { name: '🥓 Бекон', price: 2.5 }
+        { name: '🧀 Сырный соус', price: 1.5 },
+        { name: '🌶 Острый батхерт', price: 1.0 },
+        { name: '🥓 Сало Валакаса', price: 2.0 }
     ];
 
     let cart = [];
-    let currentItem = null;
-    let selectedExtras = new Set();
-    let currentQty = 1;
+    let tempItem = null;
+    let tempExtras = new Set();
 
     function render(cat = 'all') {
         const catalog = document.getElementById('catalog');
@@ -181,71 +190,115 @@
                 <p>${item.desc}</p>
                 <div class="price-row">
                     <span class="price">${item.price.toFixed(2)} BYN</span>
-                    <button class="add-btn" onclick="openModal(${item.id})">ВЫБРАТЬ</button>
+                    <button class="add-btn" onclick="openItem(${item.id})">ВЫБРАТЬ</button>
                 </div>
             `;
             catalog.appendChild(div);
         });
     }
 
-    function openModal(id) {
-        currentItem = menu.find(m => m.id === id);
-        selectedExtras.clear();
-        currentQty = 1;
-        document.getElementById('mName').innerText = currentItem.name;
-        document.getElementById('mQty').innerText = currentQty;
+    function openItem(id) {
+        tempItem = menu.find(m => m.id === id);
+        tempExtras.clear();
+        document.getElementById('mName').innerText = tempItem.name;
         
         const mExtras = document.getElementById('mExtras');
         mExtras.innerHTML = '';
         extras.forEach(ex => {
             const div = document.createElement('div');
             div.className = 'extra-item';
-            div.innerHTML = `<span>${ex.name} (+${ex.price})</span><div class="checkbox"></div>`;
+            div.innerHTML = `<span>${ex.name}</span> <span>+${ex.price}</span>`;
             div.onclick = () => {
-                div.classList.toggle('active');
-                selectedExtras.has(ex) ? selectedExtras.delete(ex) : selectedExtras.add(ex);
-                updateModalPrice();
+                div.classList.toggle('selected');
+                tempExtras.has(ex) ? tempExtras.delete(ex) : tempExtras.add(ex);
+                updateTempPrice();
             };
             mExtras.appendChild(div);
         });
-        updateModalPrice();
+        updateTempPrice();
         document.getElementById('modalOverlay').style.display = 'flex';
     }
 
-    function updateModalPrice() {
-        let p = currentItem.price;
-        selectedExtras.forEach(e => p += e.price);
-        document.getElementById('mTotal').innerText = (p * currentQty).toFixed(2);
+    function updateTempPrice() {
+        let p = tempItem.price;
+        tempExtras.forEach(e => p += e.price);
+        document.getElementById('mTotal').innerText = p.toFixed(2) + ' BYN';
     }
 
-    function changeQty(v) {
-        currentQty = Math.max(1, currentQty + v);
-        document.getElementById('mQty').innerText = currentQty;
-        updateModalPrice();
-    }
-
-    function confirmItem() {
-        let p = currentItem.price;
-        selectedExtras.forEach(e => p += e.price);
+    function addToCart() {
+        let p = tempItem.price;
+        tempExtras.forEach(e => p += e.price);
+        
+        // Уникальный ID для товара в корзине
+        const cartId = Date.now();
         cart.push({
-            name: currentItem.name,
-            qty: currentQty,
-            price: p * currentQty,
-            extras: Array.from(selectedExtras).map(e => e.name)
+            cartId: cartId,
+            name: tempItem.name,
+            basePrice: p,
+            qty: 1,
+            extras: Array.from(tempExtras).map(e => e.name)
         });
+        
         document.getElementById('modalOverlay').style.display = 'none';
-        updateCart();
+        updateCartBar();
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
-    function updateCart() {
+    function updateCartBar() {
         const bar = document.getElementById('cartBar');
         if (cart.length > 0) {
             bar.style.display = 'flex';
-            const total = cart.reduce((s, i) => s + i.price, 0);
+            const total = cart.reduce((s, i) => s + (i.basePrice * i.qty), 0);
             document.getElementById('cCount').innerText = cart.length;
             document.getElementById('cPrice').innerText = total.toFixed(2);
+        } else {
+            bar.style.display = 'none';
         }
     }
+
+    function openCart() {
+        const list = document.getElementById('cartList');
+        list.innerHTML = '';
+        cart.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:bold">${item.name}</div>
+                    <div style="font-size:10px; opacity:0.5">${item.extras.join(', ')}</div>
+                </div>
+                <div class="qty-ctrl">
+                    <button class="btn-qty" onclick="changeCartQty(${item.cartId}, -1)">−</button>
+                    <span>${item.qty}</span>
+                    <button class="btn-qty" onclick="changeCartQty(${item.cartId}, 1)">+</button>
+                    <button class="btn-qty" style="color:red; border:none" onclick="removeFromCart(${item.cartId})">🗑</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+        
+        const total = cart.reduce((s, i) => s + (i.basePrice * i.qty), 0);
+        document.getElementById('cartFullPrice').innerText = total.toFixed(2) + ' BYN';
+        document.getElementById('cartOverlay').style.display = 'flex';
+    }
+
+    function changeCartQty(cartId, delta) {
+        const item = cart.find(i => i.cartId === cartId);
+        if (item) {
+            item.qty = Math.max(1, item.qty + delta);
+            openCart(); // Перерисовать
+            updateCartBar();
+        }
+    }
+
+    function removeFromCart(cartId) {
+        cart = cart.filter(i => i.cartId !== cartId);
+        if (cart.length === 0) closeCart();
+        else openCart();
+        updateCartBar();
+    }
+
+    function closeCart() { document.getElementById('cartOverlay').style.display = 'none'; }
 
     function filter(c, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -254,13 +307,16 @@
     }
 
     function sendOrder() {
+        const total = cart.reduce((s, i) => s + (i.basePrice * i.qty), 0);
         tg.sendData(JSON.stringify({
             items: cart,
-            total: cart.reduce((s, i) => s + i.price, 0)
+            total: total
         }));
     }
 
-    window.onclick = (e) => { if(e.target == document.getElementById('modalOverlay')) document.getElementById('modalOverlay').style.display = 'none'; }
+    window.onclick = (e) => {
+        if(e.target.id === 'modalOverlay') document.getElementById('modalOverlay').style.display = 'none';
+    }
     render();
 </script>
 </body>
