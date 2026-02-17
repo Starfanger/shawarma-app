@@ -31,7 +31,29 @@
 
         .container { padding: 0 15px 140px; max-width: 600px; margin: 0 auto; }
 
-        .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 15px 0; scrollbar-width: none; }
+        /* Слайдер акций (Как в Додо) */
+        .promo-slider {
+            display: flex; gap: 12px; overflow-x: auto; 
+            padding: 10px 20px; scrollbar-width: none;
+        }
+        .promo-slider::-webkit-scrollbar { display: none; }
+        .promo-card {
+            min-width: 140px; height: 170px; border-radius: 20px;
+            background: linear-gradient(135deg, #1a1a1e 0%, #0e0e11 100%);
+            border: 1px solid var(--glass-border); flex-shrink: 0;
+            padding: 15px; display: flex; flex-direction: column; justify-content: flex-end;
+            position: relative; overflow: hidden;
+        }
+        .promo-card b { font-size: 13px; line-height: 1.2; z-index: 1; }
+        .promo-card span { font-size: 10px; color: var(--accent); margin-top: 5px; z-index: 1; font-weight: 800; }
+        /* Декор для карточек */
+        .promo-card::after {
+            content: ''; position: absolute; top: -20px; right: -20px;
+            width: 80px; height: 80px; background: var(--accent);
+            filter: blur(40px); opacity: 0.15;
+        }
+
+        .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 15px 20px; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
         
         .tab {
@@ -83,13 +105,17 @@
         .extra-row span:first-child { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
         .extra-row span:last-child { font-size: 11px; color: var(--accent); font-weight: 800; }
 
+        /* Нижняя панель корзины */
         .cart-bar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: calc(100% - 40px); max-width: 500px;
             background: var(--accent); color: #000; border-radius: 18px;
-            padding: 18px 22px; display: none; justify-content: space-between;
+            padding: 16px 20px; display: none; justify-content: space-between;
             align-items: center; font-weight: 900; z-index: 900;
+            box-shadow: 0 10px 30px rgba(0, 255, 163, 0.2);
         }
+        .cart-info { display: flex; align-items: center; gap: 12px; }
+        .cart-icon { width: 24px; height: 24px; fill: currentColor; }
 
         .cart-item {
             display: flex; justify-content: space-between; align-items: center;
@@ -103,6 +129,13 @@
 
 <div class="bg-glow"></div>
 <header><h1>МЕМНОЕ МЕНЮ</h1></header>
+
+<div class="promo-slider">
+    <div class="promo-card"><b>Кешбэк 10%<br>на всё</b><span>АКЦИЯ</span></div>
+    <div class="promo-card"><b>Да-да-я<br>в подарок</b><span>ОТ 30 BYN</span></div>
+    <div class="promo-card"><b>Бесплатная<br>доставка</b><span>ГОМЕЛЬ</span></div>
+    <div class="promo-card"><b>Бургер недели:<br>ГИГА-ЖМЫХ</b><span>-20%</span></div>
+</div>
 
 <div class="container">
     <div class="tabs">
@@ -141,16 +174,21 @@
 </div>
 
 <div class="cart-bar" id="cartBar" onclick="openCart()">
-    <span id="cCount">0 ПОЗИЦИЙ</span>
+    <div class="cart-info">
+        <svg class="cart-icon" viewBox="0 0 24 24">
+            <path d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18M7.2,14.63L7.17,14.75C7.17,14.89 7.28,15 7.42,15H19V17H7C5.89,17 5,16.1 5,15C5,14.65 5.09,14.32 5.24,14.04L6.6,11.59L3,4H1V2H4.27L5.21,4H20A1,1 0 0,1 21,5C21,5.17 20.95,5.34 20.88,5.5L17.3,11.97C16.96,12.58 16.3,13 15.55,13H8.1L7.2,14.63Z" />
+        </svg>
+        <span id="cCount">0 ПОЗИЦИЙ</span>
+    </div>
     <span id="cPrice">0.00 BYN</span>
 </div>
 
 <script>
+    // Весь JavaScript остается идентичным вашему, я только обновил названия функций для синхронизации
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     const menu = [
-        // ВАЛАКАС (20)
         { id: 1, cat: 'valakas', name: '👴 Да-да-я Классик', price: 7.0, desc: '54 года выдержки. Базовый свиток.' },
         { id: 2, cat: 'valakas', name: '👟 Пенисы Кролика', price: 9.5, desc: 'Те самые тапки. Очень мягкое мясо.' },
         { id: 3, cat: 'valakas', name: '💊 Тупа Отдых', price: 8.0, desc: 'Для спокойного вечера в Самаре.' },
@@ -172,7 +210,6 @@
         { id: 19, cat: 'valakas', name: '🎭 Маска Деда', price: 8.5, desc: 'Скрывает голод.' },
         { id: 20, cat: 'valakas', name: '👴 Пожилой Гигант', price: 18.0, desc: '80см удовольствия.' },
 
-        // БУРГЕРЫ (20)
         { id: 31, cat: 'burgers', name: '🍔 ГИГА-ЖМЫХ', price: 15.0, desc: 'Размером с голову.' },
         { id: 32, cat: 'burgers', name: '🥓 Батин Хайп', price: 12.0, desc: 'Много бекона.' },
         { id: 33, cat: 'burgers', name: '👊 Широкая Кость XL', price: 16.5, desc: 'Такой скелет.' },
@@ -194,7 +231,6 @@
         { id: 49, cat: 'burgers', name: '🥚 Яичный Рофл', price: 11.0, desc: 'С глазуньей.' },
         { id: 50, cat: 'burgers', name: '🦾 Железный Денис', price: 17.5, desc: 'Мощный.' },
 
-        // СЕТЫ (10)
         { id: 101, cat: 'sets', name: '🕺 Сет Сприподвыподвертом', price: 45.0, desc: '20 роллов.' },
         { id: 102, cat: 'sets', name: '💨 Сет Движение', price: 38.0, desc: 'Быстрый вкус.' },
         { id: 103, cat: 'sets', name: '⛪️ Поднизовский Свиток', price: 12.0, desc: 'Освященный.' },
@@ -207,7 +243,6 @@
         { id: 114, cat: 'sets', name: '🌋 Вулкан Валакаса', price: 40.0, desc: 'Запеченные.' }
     ];
 
-    // КЛАССИЧЕСКИЕ ДОПЫ (КАК В ДОДО)
     const extras = [
         { name: '🧀 Сыр чеддер', price: 1.5 },
         { name: '🥓 Жареный бекон', price: 2.0 },
@@ -252,22 +287,18 @@
 
     function openItem(id, cartCid = null) {
         if (cartCid) document.getElementById('cartOverlay').classList.remove('active');
-
         editingCid = cartCid;
         const source = cartCid ? cart.find(x => x.cid === cartCid) : null;
         tempItem = menu.find(m => m.id === id);
         tempExtras.clear();
-
         if (source) {
             source.details.forEach(name => {
                 const ex = extras.find(e => e.name === name);
                 if (ex) tempExtras.add(ex);
             });
         }
-
         document.getElementById('mName').innerText = tempItem.name;
         document.getElementById('mDesc').innerText = tempItem.desc;
-        
         const mExtras = document.getElementById('mExtras');
         mExtras.innerHTML = '';
         extras.forEach(ex => {
@@ -294,7 +325,6 @@
     function addToCart() {
         let p = tempItem.price;
         tempExtras.forEach(e => p += e.price);
-        
         if (editingCid) {
             const i = cart.find(x => x.cid === editingCid);
             i.total = p;
@@ -310,7 +340,6 @@
                 details: Array.from(tempExtras).map(e => e.name)
             });
         }
-        
         closeConstructor();
         updateBar();
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
@@ -361,14 +390,8 @@
         }
     }
 
-    function closeConstructor() {
-        document.getElementById('modalOverlay').classList.remove('active');
-    }
-
-    function closeCart() {
-        document.getElementById('cartOverlay').classList.remove('active');
-    }
-
+    function closeConstructor() { document.getElementById('modalOverlay').classList.remove('active'); }
+    function closeCart() { document.getElementById('cartOverlay').classList.remove('active'); }
     function filter(c, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
